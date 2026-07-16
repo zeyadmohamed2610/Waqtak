@@ -40,7 +40,7 @@ const TRANSLATIONS = {
     // Header
     logoMain:         'وقتك',
     logoSub:          'متابعة حسابات Bybit',
-    clockLabel:       'التوقيت المصري الآن',
+    clockLabel:       'التوقيت العالمي الآن (UTC)',
     langToggleText:   'English',
     // Hero
     heroBadge:        'متابعة الإيداعات والنشاط',
@@ -203,7 +203,7 @@ const TRANSLATIONS = {
     // Header
     logoMain:         'Waqtak',
     logoSub:          'Bybit Account Tracker',
-    clockLabel:       'Egypt Time (Now)',
+    clockLabel:       'Universal Time (UTC)',
     langToggleText:   'عربي',
     // Hero
     heroBadge:        'Deposit & Activity Tracking',
@@ -422,7 +422,7 @@ function tickClock() {
   const now = new Date();
   const locale = currentLang === 'ar' ? 'ar-EG' : 'en-US';
   $('live-clock').textContent = now.toLocaleTimeString(locale, {
-    timeZone: EGYPT_TZ,
+    timeZone: 'UTC',
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
   });
 }
