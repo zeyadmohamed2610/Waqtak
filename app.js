@@ -37,6 +37,41 @@ const IDB_VERSION       = 1;
 // ─── i18n Translations ───────────────────────────────────────────────────────
 const TRANSLATIONS = {
   ar: {
+    // Theme
+    themeLight: 'الوضع الفاتح',
+    themeDark: 'الوضع الداكن',
+    themeToggle: 'تبديل المظهر',
+    // Timeline
+    timelineTitle: 'الجدول الزمني للحسابات',
+    timelineHide: 'إخفاء',
+    timelineShow: 'عرض',
+    legendStage1: 'المرحلة 1 (4 أيام)',
+    legendStage2: 'المرحلة 2 (4 أيام)',
+    legendDone: 'مكتمل',
+    timelineToday: 'اليوم',
+    timelineNoAccounts: 'لا توجد حسابات بعد',
+    // Bulk Actions
+    bulkSelected: 'محدد',
+    bulkDelete: '🗑️ حذف المحدد',
+    bulkExport: '📤 تصدير المحدد',
+    bulkExportCSV: '📊 تصدير CSV',
+    bulkSelectAll: '☑️ تحديد الكل',
+    bulkDeselect: '☐ إلغاء التحديد',
+    bulkModeBtn: 'وضع التحديد المتعدد',
+    bulkExitMode: 'الخروج من التحديد',
+    bulkDeleteConfirm: 'هل تريد حذف {n} حساب(ات) محدد(ة)؟',
+    bulkExportOk: '✅ تم تصدير {n} حساب بنجاح',
+    // CSV
+    csvFilename: 'waqtak_export_{date}.csv',
+    csvHeaders: 'UID,البريد,IP,الإيداع ($),الحالة,المرحلة 1,المرحلة 2,ملاحظات',
+    csvStage1: 'المرحلة 1',
+    csvStage2: 'المرحلة 2',
+    csvDone: 'مكتمل',
+    // Theme
+    toastThemeLight: '☀️ تحول إلى الوضع الفاتح',
+    toastThemeDark: '🌙 تحول إلى الوضع الداكن',
+    // PWA
+    pwaInstallTitle: '📱 ثبّت تطبيق وقتك!',
     // Header
     logoMain:         'وقتك',
     logoSub:          'متابعة حسابات Bybit',
@@ -212,6 +247,41 @@ const TRANSLATIONS = {
     integrityChecking:'🔄 جاري الفحص...',
   },
   en: {
+    // Theme
+    themeLight: 'Light Mode',
+    themeDark: 'Dark Mode',
+    themeToggle: 'Toggle Appearance',
+    // Timeline
+    timelineTitle: 'Accounts Timeline',
+    timelineHide: 'Hide',
+    timelineShow: 'Show',
+    legendStage1: 'Stage 1 (4 days)',
+    legendStage2: 'Stage 2 (4 days)',
+    legendDone: 'Completed',
+    timelineToday: 'Today',
+    timelineNoAccounts: 'No accounts yet',
+    // Bulk Actions
+    bulkSelected: 'selected',
+    bulkDelete: '🗑️ Delete Selected',
+    bulkExport: '📤 Export Selected',
+    bulkExportCSV: '📊 Export CSV',
+    bulkSelectAll: '☑️ Select All',
+    bulkDeselect: '☐ Deselect All',
+    bulkModeBtn: 'Multi-Select Mode',
+    bulkExitMode: 'Exit Selection',
+    bulkDeleteConfirm: 'Delete {n} selected account(s)?',
+    bulkExportOk: '✅ Exported {n} accounts successfully',
+    // CSV
+    csvFilename: 'waqtak_export_{date}.csv',
+    csvHeaders: 'UID,Email,IP,Deposit ($),Status,Stage 1,Stage 2,Notes',
+    csvStage1: 'Stage 1',
+    csvStage2: 'Stage 2',
+    csvDone: 'Completed',
+    // Theme
+    toastThemeLight: '☀️ Switched to Light Mode',
+    toastThemeDark: '🌙 Switched to Dark Mode',
+    // PWA
+    pwaInstallTitle: '📱 Install Waqtak!',
     // Header
     logoMain:         'Waqtak',
     logoSub:          'Bybit Account Tracker',
@@ -815,7 +885,7 @@ function updateLiveStats() {
   }
 
   // Stats Grid Card 3: Milestone 1 status
-  const daysElapsedCard = $('days-elapsed');
+  const daysElapsedCard = $('days-elapsed-display');
   if (stage1Done) {
     daysElapsedCard.textContent = t('dynDone');
     daysElapsedCard.style.color = 'var(--success)';
@@ -825,7 +895,7 @@ function updateLiveStats() {
   }
 
   // Stats Grid Card 4: Milestone 2 status
-  const daysRemainingCard = $('days-remaining');
+  const daysRemainingCard = $('days-remaining-display');
   if (stage2Done) {
     daysRemainingCard.textContent = t('dynDone');
     daysRemainingCard.style.color = 'var(--success)';
@@ -1923,3 +1993,351 @@ async function checkDataIntegrity() {
     if (btn) { btn.disabled = false; btn.textContent = t('btnIntegrity'); }
   }
 }
+
+// ─── Theme Toggle (Light / Dark) ─────────────────────────────────────────────
+let currentTheme = localStorage.getItem('waqtak_theme') || 'dark';
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  localStorage.setItem('waqtak_theme', theme);
+  const isDark = theme === 'dark';
+  const root = document.documentElement;
+
+  if (isDark) {
+    root.classList.remove('light-theme');
+    root.classList.add('dark-theme');
+  } else {
+    root.classList.remove('dark-theme');
+    root.classList.add('light-theme');
+  }
+
+  // Update icons
+  const moonIcon = document.getElementById('theme-icon-moon');
+  const sunIcon  = document.getElementById('theme-icon-sun');
+  if (moonIcon) moonIcon.style.display = isDark ? 'block' : 'none';
+  if (sunIcon)  sunIcon.style.display  = isDark ? 'none' : 'block';
+
+  showToast(isDark ? t('toastThemeDark') : t('toastThemeLight'));
+}
+
+function toggleTheme() {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+}
+
+// Apply saved theme on load
+(function initTheme() {
+  const saved = localStorage.getItem('waqtak_theme') || 'dark';
+  applyTheme(saved);
+})();
+
+// ─── Bulk Selection Mode ─────────────────────────────────────────────────────
+let bulkMode = false;
+let selectedIds = new Set();
+
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  selectedIds.clear();
+  const btn = document.getElementById('bulk-toggle-btn');
+  const bar = document.getElementById('bulk-actions-bar');
+  const toggleBtn = btn ? btn.querySelector('span') : null;
+
+  if (bulkMode) {
+    if (bar) bar.style.display = 'flex';
+    if (toggleBtn) toggleBtn.textContent = t('bulkExitMode');
+    if (btn) btn.classList.add('bulk-active');
+  } else {
+    if (bar) bar.style.display = 'none';
+    if (toggleBtn) toggleBtn.textContent = t('bulkModeBtn');
+    if (btn) btn.classList.remove('bulk-active');
+    // Clear checkbox visuals
+    document.querySelectorAll('.account-checkbox').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.card')?.classList.remove('bulk-selected');
+    });
+  }
+  updateBulkCount();
+  renderAccounts();
+}
+
+function toggleAccountSelect(id) {
+  if (!bulkMode) return;
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+
+  const card = document.getElementById(`account-card-${id}`);
+  const cb = card ? card.querySelector('.account-checkbox') : null;
+  if (card) card.classList.toggle('bulk-selected', selectedIds.has(id));
+  if (cb) cb.checked = selectedIds.has(id);
+  updateBulkCount();
+}
+
+function updateBulkCount() {
+  const el = document.getElementById('bulk-count');
+  if (el) el.textContent = selectedIds.size;
+  const bar = document.getElementById('bulk-actions-bar');
+  if (bar) bar.style.display = (bulkMode && selectedIds.size > 0) ? 'flex' :
+                                (bulkMode ? 'flex' : 'none');
+}
+
+function bulkSelectAll() {
+  accounts.forEach(a => selectedIds.add(a.id));
+  document.querySelectorAll('.account-checkbox').forEach(cb => { cb.checked = true; });
+  document.querySelectorAll('.account-card').forEach(card => card.classList.add('bulk-selected'));
+  updateBulkCount();
+}
+
+function bulkDeselectAll() {
+  selectedIds.clear();
+  document.querySelectorAll('.account-checkbox').forEach(cb => { cb.checked = false; });
+  document.querySelectorAll('.account-card').forEach(card => card.classList.remove('bulk-selected'));
+  updateBulkCount();
+}
+
+function bulkDelete() {
+  if (selectedIds.size === 0) return;
+  const msg = t('bulkDeleteConfirm').replace('{n}', selectedIds.size);
+  if (!confirm(msg)) return;
+  accounts = accounts.filter(a => !selectedIds.has(a.id));
+  selectedIds.clear();
+  saveAccounts();
+  renderAccounts();
+  renderDashboard();
+  updateBulkCount();
+  toggleBulkMode(); // Exit bulk mode
+  showToast(`✅ ${currentLang === 'ar' ? 'تم الحذف' : 'Deleted'}`);
+}
+
+function bulkExport() {
+  if (selectedIds.size === 0) return;
+  const data = accounts.filter(a => selectedIds.has(a.id));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `waqtak_bulk_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(t('bulkExportOk').replace('{n}', selectedIds.size));
+}
+
+function bulkExportCSV() {
+  if (selectedIds.size === 0) return;
+  const rows = [t('csvHeaders').split(',')];
+
+  accounts.filter(a => selectedIds.has(a.id)).forEach(a => {
+    const dep = new Date(a.depositTime);
+    const s1End = new Date(dep.getTime() + 4 * 86400000);
+    const s2End = a.stage2StartTime ? new Date(new Date(a.stage2StartTime).getTime() + 4 * 86400000) : '—';
+    const status = a.stage === 1 ? t('csvStage1') : a.stage === 2 ? t('csvStage2') : t('csvDone');
+    rows.push([
+      a.uid || '',
+      a.email || '',
+      a.ip || '',
+      a.amount || '',
+      status,
+      formatEgyptShort(s1End),
+      typeof s2End === 'string' ? s2End : formatEgyptShort(s2End),
+      (a.notes || '').replace(/,/g, ';')
+    ]);
+  });
+
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  const pad = n => String(n).padStart(2, '0');
+  const now = new Date();
+  a.download = `waqtak_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(t('bulkExportOk').replace('{n}', selectedIds.size));
+}
+
+// ─── Timeline Visualization ────────────────────────────────────────────────────
+let timelineVisible = true;
+
+function toggleTimeline() {
+  timelineVisible = !timelineVisible;
+  const container = document.getElementById('timeline-container');
+  const btn = document.getElementById('timeline-toggle-btn');
+  const btnSpan = btn ? btn.querySelector('span') : null;
+
+  if (container) container.style.display = timelineVisible ? 'block' : 'none';
+  if (btnSpan) btnSpan.textContent = timelineVisible ? t('timelineHide') : t('timelineShow');
+}
+
+function renderTimeline() {
+  const container = document.getElementById('timeline-rows');
+  if (!container) return;
+
+  if (accounts.length === 0) {
+    container.innerHTML = `<div class="timeline-empty">${t('timelineNoAccounts')}</div>`;
+    return;
+  }
+
+  const now = Date.now();
+  const oneDay = 86400000;
+
+  // Find earliest and latest dates for scale
+  let minTime = now;
+  let maxTime = now;
+  accounts.forEach(a => {
+    const dep = new Date(a.depositTime).getTime();
+    const end = a.stage2StartTime
+      ? new Date(a.stage2StartTime).getTime() + 8 * oneDay
+      : dep + 8 * oneDay;
+    if (dep < minTime) minTime = dep;
+    if (end > maxTime) maxTime = end;
+  });
+
+  // Add 1 day padding on each side
+  minTime -= oneDay;
+  maxTime += oneDay;
+  const totalRange = maxTime - minTime;
+
+  // Snap to day boundaries for "today" marker
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayEnd.getDate() + 1);
+  const todayMs = todayStart.getTime();
+  const todayPct = ((todayMs - minTime) / totalRange) * 100;
+
+  let html = `<div class="timeline-scale-wrapper"><div class="timeline-today-marker" style="left:${todayPct}%;"><span class="today-label">${t('timelineToday')}</span></div></div>`;
+
+  accounts.slice(0, 20).forEach(a => {
+    const depMs = new Date(a.depositTime).getTime();
+    const stage1EndMs = depMs + 4 * oneDay;
+    const stage2EndMs = a.stage2StartTime
+      ? new Date(a.stage2StartTime).getTime() + 4 * oneDay
+      : stage1EndMs + 4 * oneDay;
+
+    const left1 = Math.max(0, ((depMs - minTime) / totalRange) * 100);
+    const left2 = Math.max(0, ((stage1EndMs - minTime) / totalRange) * 100);
+    const left3 = Math.max(0, ((stage2EndMs - minTime) / totalRange) * 100);
+
+    const width1 = left2 - left1;
+    const width2 = left3 - left2;
+    const isDone = a.stage === 2 && stage2EndMs <= now;
+
+    const uid = a.uid ? `#${a.uid}` : `#?`;
+    const label = uid;
+
+    html += `
+      <div class="timeline-row" onclick="focusAccount(${a.id})">
+        <div class="timeline-row-label" title="${a.email || ''}">${label}</div>
+        <div class="timeline-bar-track">
+          <div class="timeline-bar-stage1" style="left:${left1}%;width:${width1}%;" title="المرحلة 1"></div>
+          ${width2 > 0 ? `<div class="timeline-bar-stage2 ${isDone ? 'done' : ''}" style="left:${left2}%;width:${width2}%;" title="المرحلة 2"></div>` : ''}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function focusAccount(id) {
+  const card = document.getElementById(`account-card-${id}`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.classList.add('focused');
+    setTimeout(() => card.classList.remove('focused'), 2000);
+  }
+}
+
+// ─── Keyboard Shortcuts ───────────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement.tagName.toLowerCase();
+  const isInput = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  // Ctrl+Enter → Calculate / Save
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if (typeof calculate === 'function' && currentMode === 'calculator') calculate();
+    else if (typeof saveAccount === 'function') saveAccount();
+    return;
+  }
+
+  // Ctrl+N → New Account (in manager mode)
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !isInput) {
+    if (currentMode === 'manager') {
+      e.preventDefault();
+      openAddForm();
+    }
+    return;
+  }
+
+  // Ctrl+E → Export
+  if ((e.ctrlKey || e.metaKey) && e.key === 'e' && !isInput) {
+    e.preventDefault();
+    exportAccounts();
+    return;
+  }
+
+  // Ctrl+B → Toggle Theme
+  if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !isInput) {
+    e.preventDefault();
+    toggleTheme();
+    return;
+  }
+
+  // Ctrl+K → Shortcuts modal
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    if (typeof toggleShortcutsModal === 'function') toggleShortcutsModal();
+    return;
+  }
+
+  // Ctrl+Shift+F → Focus search
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+    e.preventDefault();
+    const search = document.getElementById('mgr-search');
+    if (search) { search.focus(); search.select(); }
+    return;
+  }
+});
+
+// ─── Update card checkbox in renderAccounts ───────────────────────────────────
+const _origRenderAccounts = renderAccounts;
+// (overridden below in the function itself via the card innerHTML tweak)
+
+// Update renderAccounts to add bulk checkbox
+const origRenderAccounts = renderAccounts;
+renderAccounts = function() {
+  origRenderAccounts();
+  // Add checkbox after rendering
+  document.querySelectorAll('.account-card').forEach(card => {
+    if (!card.querySelector('.account-checkbox')) {
+      const header = card.querySelector('.account-card-header');
+      if (header) {
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'account-checkbox';
+        cb.title = currentLang === 'ar' ? 'تحديد' : 'Select';
+        cb.onclick = (ev) => {
+          ev.stopPropagation();
+          const id = parseInt(card.id.replace('account-card-', ''));
+          toggleAccountSelect(id);
+        };
+        header.insertBefore(cb, header.firstChild);
+      }
+    }
+  });
+
+  // Sync checkbox state in bulk mode
+  if (bulkMode) {
+    document.querySelectorAll('.account-card').forEach(card => {
+      const id = parseInt(card.id.replace('account-card-', ''));
+      const cb = card.querySelector('.account-checkbox');
+      if (cb) cb.checked = selectedIds.has(id);
+      card.classList.toggle('bulk-selected', selectedIds.has(id));
+    });
+  }
+};
+
+// ─── Auto-reload timeline when dashboard updates ───────────────────────────────
+const _origRenderDashboard = renderDashboard;
+renderDashboard = function() {
+  _origRenderDashboard();
+  renderTimeline();
+};

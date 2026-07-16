@@ -1,0 +1,30 @@
+{
+  "name": "وقتك | Waqtak - Bybit Tracker",
+  "short_name": "Waqtak",
+  "description": "متابعة حسابات Bybit — تتبع مواعيد الإيداعات والمراجعات",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#080B12",
+  "theme_color": "#F7A600",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='%23080B12'/><path d='M256 80L416 160v192L256 432 96 352V160L256 80z' stroke='%23F7A600' stroke-width='16' fill='none'/><path d='M256 130l100 57v114L256 358l-100-57V187L256 130z' fill='%23F7A600' fill-opacity='0.2'/><circle cx='256' cy='256' r='40' fill='%23F7A600'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='36' fill='%23080B12'/><path d='M96 30L156 60v72L96 162 36 132V60L96 30z' stroke='%23F7A600' stroke-width='6' fill='none'/><circle cx='96' cy='96' r='15' fill='%23F7A600'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

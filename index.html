@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>وقتك | Waqtak</title>
   <meta name="description" content="أداة متابعة حسابات Bybit" />
+  <meta name="theme-color" content="#F7A600" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Waqtak" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -40,6 +45,19 @@
           <span data-i18n="langToggleText">English</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </button>
+        <button id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
+          <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button id="shortcuts-toggle-btn" class="shortcuts-toggle-btn" onclick="toggleShortcutsModal()" title="Keyboard shortcuts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="8" y1="16" x2="16" y2="16"/>
           </svg>
         </button>
       </div>
@@ -234,6 +252,51 @@
         </div>
       </div>
 
+      <!-- Timeline Visualization -->
+      <div class="timeline-section" id="timeline-section">
+        <div class="timeline-header">
+          <h2 class="timeline-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span data-i18n="timelineTitle">الجدول الزمني للحسابات</span>
+          </h2>
+          <button class="timeline-toggle-btn" onclick="toggleTimeline()" id="timeline-toggle-btn">
+            <span data-i18n="timelineHide">إخفاء</span>
+          </button>
+        </div>
+        <div class="timeline-container" id="timeline-container">
+          <div class="timeline-legend">
+            <span class="legend-item legend-stage1"><span class="legend-dot"></span><span data-i18n="legendStage1">المرحلة 1 (4 أيام)</span></span>
+            <span class="legend-item legend-stage2"><span class="legend-dot"></span><span data-i18n="legendStage2">المرحلة 2 (4 أيام)</span></span>
+            <span class="legend-item legend-done"><span class="legend-dot"></span><span data-i18n="legendDone">مكتمل</span></span>
+          </div>
+          <div class="timeline-rows" id="timeline-rows"></div>
+        </div>
+      </div>
+
+      <!-- Bulk Actions Bar -->
+      <div class="bulk-actions-bar" id="bulk-actions-bar" style="display:none;">
+        <div class="bulk-info">
+          <span id="bulk-count">0</span> <span data-i18n="bulkSelected">محدد</span>
+        </div>
+        <div class="bulk-buttons">
+          <button class="bulk-btn bulk-delete" onclick="bulkDelete()" data-i18n="bulkDelete">🗑️ حذف المحدد</button>
+          <button class="bulk-btn bulk-export" onclick="bulkExport()" data-i18n="bulkExport">📤 تصدير المحدد</button>
+          <button class="bulk-btn bulk-csv" onclick="bulkExportCSV()" data-i18n="bulkExportCSV">📊 تصدير CSV</button>
+          <button class="bulk-btn bulk-select-all" onclick="bulkSelectAll()" data-i18n="bulkSelectAll">☑️ تحديد الكل</button>
+          <button class="bulk-btn bulk-deselect" onclick="bulkDeselectAll()" data-i18n="bulkDeselect">☐ إلغاء التحديد</button>
+        </div>
+      </div>
+
+      <!-- Bulk Select Toggle -->
+      <div class="bulk-toggle-wrapper">
+        <button class="bulk-toggle-btn" id="bulk-toggle-btn" onclick="toggleBulkMode()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          <span data-i18n="bulkModeBtn">وضع التحديد المتعدد</span>
+        </button>
+      </div>
+
       <div class="accounts-grid" id="accounts-grid"></div>
     </div>
 
@@ -245,6 +308,84 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- PWA Install Banner -->
+  <div id="pwa-install-banner" class="pwa-install-banner" style="display:none;">
+    <div class="pwa-banner-content">
+      <span>📱 ثبّت تطبيق وقتك على جهازك للعمل أوفلاين!</span>
+      <div class="pwa-banner-actions">
+        <button id="pwa-install-btn" class="pwa-install-btn" onclick="installPWA()">تثبيت</button>
+        <button class="pwa-dismiss-btn" onclick="dismissPWA()">×</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="shortcuts-modal" style="display:none;">
+    <div class="shortcuts-overlay" onclick="toggleShortcutsModal()"></div>
+    <div class="shortcuts-content">
+      <div class="shortcuts-header">
+        <h3>⌨️ اختصارات لوحة المفاتيح</h3>
+        <button class="shortcuts-close" onclick="toggleShortcutsModal()">×</button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> <span>احسب / احفظ</span></div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>N</kbd> <span>حساب جديد</span></div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>E</kbd> <span>تصدير البيانات</span></div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>B</kbd> <span>تبديل الوضع (فاتح/داكن)</span></div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>K</kbd> <span>اختصارات لوحة المفاتيح</span></div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> <span>بحث سريع</span></div>
+        <div class="shortcut-item"><kbd>Esc</kbd> <span>إغلاق النموذج / الإلغاء</span></div>
+        <div class="shortcut-item"><kbd>?</kbd> <span>فتح هذا الدليل</span></div>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
+  <script>
+    // ─── PWA Install ────────────────────────────────────────────────
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'block';
+    });
+    window.addEventListener('appinstalled', () => {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'none';
+      deferredPrompt = null;
+    });
+    function installPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; dismissPWA(); });
+    }
+    function dismissPWA() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.style.display = 'none';
+    }
+    // ─── Service Worker Registration ────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed:', err));
+    }
+    // ─── Keyboard Shortcuts Modal ────────────────────────────────────
+    function toggleShortcutsModal() {
+      const modal = document.getElementById('shortcuts-modal');
+      if (!modal) return;
+      const isHidden = modal.style.display === 'none' || !modal.style.display;
+      modal.style.display = isHidden ? 'flex' : 'none';
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('shortcuts-modal');
+        if (modal && modal.style.display !== 'none') modal.style.display = 'none';
+        if (typeof closeForm === 'function') closeForm();
+      }
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        const tag = document.activeElement.tagName.toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') toggleShortcutsModal();
+      }
+    });
+  </script>
 </body>
 </html>
