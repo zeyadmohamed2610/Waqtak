@@ -442,7 +442,8 @@ function parseManualFormat() {
 
 // ─── Format Date for Display (Egypt TZ) ──────────────────────────────────────
 function formatEgypt(date) {
-  return date.toLocaleString('ar-EG', {
+  const locale = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+  return date.toLocaleString(locale, {
     timeZone: EGYPT_TZ,
     year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -451,7 +452,8 @@ function formatEgypt(date) {
 }
 
 function formatEgyptShort(date) {
-  return date.toLocaleString('ar-EG', {
+  const locale = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+  return date.toLocaleString(locale, {
     timeZone: EGYPT_TZ,
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit',
