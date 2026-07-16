@@ -1049,7 +1049,9 @@ function showToast(msg) {
 // ─── Particle Canvas ──────────────────────────────────────────────────────────
 (function initParticles() {
   const canvas = $('particle-canvas');
+  if (!canvas) return; // Defensive: if the canvas element is missing, skip silently so the rest of the app still runs.
   const ctx    = canvas.getContext('2d');
+  if (!ctx) return;
   let particles = [];
   let W, H;
 
