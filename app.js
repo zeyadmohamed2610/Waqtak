@@ -456,7 +456,216 @@ const TRANSLATIONS = {
     // IP Conflict
     ipConflictBadge:  '⚠️ Duplicate IP',
     ipConflictTip:    'This IP is used by other accounts — risk of account linking!',
-    
+    // Data Integrity EN
+    btnIntegrity:     '🔍 Data Integrity Check',
+    integrityOk:      '✅ Data intact — localStorage and IndexedDB match',
+    integrityMismatch:'⚠️ Warning: Mismatch between localStorage and IndexedDB!',
+    integrityLSOnly:  '📦 localStorage: {n} account(s)',
+    integrityIDBOnly: '💾 IndexedDB: {n} account(s)',
+    integrityDiff:    '❌ Missing from IndexedDB: {n} account(s)',
+    integrityNoIDB:   '⚠️ IndexedDB not available',
+    integrityChecking:'🔄 Checking...',
+    integrityPanelTitle: '📊 Data Integrity Report',
+    integrityLS:     'localStorage',
+    integrityIDB:    'IndexedDB',
+    integrityTotalAccounts: 'Total Accounts',
+    integritySyncToIDB: '🔄 Sync to IndexedDB',
+    integrityRestoreFromIDB: '💾 Restore from IndexedDB',
+    integritySyncOk:  '✅ Synced — {n} accounts',
+    integrityRestored: '✅ Restored — {n} accounts',
+    integrityClose:   'Close',
+    integritySyncing: 'Syncing...',
+    integrityRestoring: 'Restoring...',
+    // Timeline EN
+    timelineHide: 'Hide',
+    timelineShow: 'Show',
+    timelineNoAccounts: 'No accounts yet',
+    timelineToday: 'Today',
+    legendStage1: 'Stage 1 (4 days)',
+    legendStage2: 'Stage 2 (4 days)',
+    legendDone: 'Completed',
+    // Bulk EN
+    bulkModeBtn: 'Multi-Select Mode',
+    bulkExitMode: 'Exit Selection',
+    bulkDeleteConfirm: 'Delete {n} selected account(s)?',
+    bulkExportOk: '✅ Exported {n} accounts',
+    bulkSelectAll: '☑️ Select All',
+    bulkDeselect: '☐ Deselect All',
+    bulkSelected: 'selected',
+    bulkDelete: '🗑️ Delete Selected',
+    bulkExport: '📤 Export Selected',
+    bulkExportCSV: '📊 Export CSV',
+    // CSV EN
+    csvHeaders: 'UID,Email,IP,Deposit ($),Status,Stage 1,Stage 2,Notes',
+    csvStage1: 'Stage 1',
+    csvStage2: 'Stage 2',
+    csvDone: 'Completed',
+    // Theme EN
+    toastThemeLight: '☀️ Light Mode',
+    toastThemeDark: '🌙 Dark Mode',
+    themeToggle: 'Toggle Appearance',
+    themeLight: 'Light Mode',
+    themeDark: 'Dark Mode',
+    // PWA EN
+    pwaInstallTitle: '📱 Install Waqtak!',
+    // Header EN
+    logoMain:         'Waqtak',
+    logoSub:          'Bybit Account Tracker',
+    clockLabel:       'Universal Time (UTC)',
+    langToggleText:   'عربي',
+    // Hero EN
+    heroBadge:        'Deposit & Activity Tracking',
+    heroTitle:        'Track Your Account<br/>Milestones Step by Step',
+    heroDesc:         'Enter the deposit date from your Gmail message and the tool will automatically calculate the review after <strong>4 days</strong> and readiness after <strong>8 days</strong>',
+    // Input Card EN
+    inputCardTitle:   'Enter Deposit Date',
+    inputCardSubtitle:'Paste the date from your Gmail message or enter it manually',
+    tabUTC:           'UTC Format',
+    tabGmail:         'Gmail Format',
+    tabManual:        'Manual',
+    labelUTC:         'UTC format — Example: <code>2026-05-26 11:36:42 (UTC+0)</code>',
+    labelGmail:       'Gmail format — Example: <code>May 26, 2026, 2:36 PM</code>',
+    labelManual:      'Choose deposit date & time (Egypt Time)',
+    gmailNote:        'Gmail shows your account\'s local timezone — automatically adjusted to UTC',
+    btnCalculate:     'Calculate Now',
+    exampleLabel:     'Quick examples:',
+    exampleUTC:       'UTC Example',
+    exampleGmail:     'Gmail Example',
+    // Progress EN
+    progressLabel:    'Complete',
+    depositLabel:     'Deposit Date (Egypt Time)',
+    milestone1Label:  'First Review — After 4 Days (Egypt Time)',
+    milestone2Label:  'Second Review & Readiness — After 8 Days (Egypt Time)',
+    // Stats EN
+    statElapsedLabel: 'Time Since Deposit',
+    statActiveLabel:  'Active Target',
+    statStage1Label:  'Stage 1 (4 Days)',
+    statStage2Label:  'Stage 2 (8 Days)',
+    // Countdown EN
+    countdownTitle:   'Precise Countdown',
+    cdDays:           'Days',
+    cdHours:          'Hours',
+    cdMins:           'Minutes',
+    cdSecs:           'Seconds',
+    // Buttons EN
+    btnReset:         'Enter New Date',
+    // History EN
+    historySectionTitle: 'Saved Accounts',
+    btnClearHistory:  'Clear All',
+    historyEmpty:     'No saved accounts yet',
+    // Footer EN
+    footerText:       'Waqtak — Bybit Account Tracker • All data stored locally on your device',
+    // Dynamic strings EN
+    dynReady:         'Fully Ready ✓',
+    dynStage2Rem:     'Stage 2: ',
+    dynStage1Rem:     'Stage 1: ',
+    dynDone:          'Done ✓',
+    dynRemaining:     '',
+    dynWaiting:       'Waiting...',
+    dynBanner2Title:  'Account Fully Ready!',
+    dynBanner2Sub:    'The 8-day period completed ',
+    dynBanner2Badge:  'Ready',
+    dynBanner1Title:  'Stage 2 Active',
+    dynBanner1Sub1:   'First review done. ',
+    dynBanner1Sub2:   ' remaining until full readiness',
+    dynBanner1Badge:  'Stage 2',
+    dynBanner0Title:  'Stage 1 Active',
+    dynBanner0Sub:    'First review in ',
+    dynBanner0Badge:  'Stage 1',
+    // History tags EN
+    histTagDone:      'Fully Ready ✓',
+    histTagStage2:    'Stage 2 ⚡',
+    histTagStage1:    'Stage 1',
+    histDepositPfx:   'Deposit: ',
+    histRev1Pfx:      'Review 1: ',
+    histRev2Pfx:      'Review 2: ',
+    histRemReady:     '⏱ Ready in: ',
+    histFullReady:    '✓ Fully Ready',
+    // Duration EN
+    durDay:    'day',
+    durHour:   'hr',
+    durMin:    'min',
+    durSec:    'sec',
+    durAnd:    ' ',
+    // Toast EN
+    toastEnterDate:  '⚠️ Please enter a date first',
+    toastBadUTC:     '❌ Invalid format — Example: 2026-05-26 11:36:42 (UTC+0)',
+    toastBadGmail:   '❌ Invalid format — Example: May 26, 2026, 2:36 PM',
+    toastPickDate:   '⚠️ Please pick a date and time',
+    toastFuture:     '⚠️ Date seems too far in the future, please check your input',
+    toastClearConfirm: 'Delete all saved records?',
+    // Mode Switcher EN
+    modeCalc:         'Quick Calculator',
+    modeMgr:          'Account Manager',
+    // Account Manager EN
+    btnAddAccount:    'Add New Account',
+    formTitleAdd:     'New Account',
+    formTitleEdit:    'Edit Account',
+    formSubtitle:     'Enter Bybit account details to save and track',
+    fieldUID:         'Bybit UID',
+    fieldEmail:       'Email Address',
+    fieldIP:          'IP Address',
+    fieldAmount:      'Deposit Amount ($)',
+    fieldTime:        'Deposit Time',
+    btnNow:           'Now',
+    fieldNotes:       'Notes (Optional)',
+    btnSave:          'Save Account',
+    btnCancel:        'Cancel',
+    toastFillRequired:'⚠️ Please specify at least the deposit date and time!',
+    toastClearAcctConfirm: 'Are you sure you want to delete this account permanently?',
+    cardStage1:       'Stage 1: Review (4 days)',
+    cardStage1Done:   'Stage 1: Ready for tasks ✓',
+    cardStage2:       'Stage 2: Pending (4 days)',
+    cardStage2Done:   'Fully Completed & Ready ✓',
+    cardEmail:        'Email:',
+    cardIP:           'IP:',
+    cardAmount:       'Deposit:',
+    cardNotes:        'Notes:',
+    cardBtnStage2:    'Complete tasks & start Stage 2 ⚡',
+    cardTimeRemaining:'Remaining: ',
+    cardTimeOverdue:  'Overdue by: ',
+    cardCreated:      'Start Date: ',
+    cardStage2Started:'Stage 2 Update: ',
+    searchPlaceholder:'Search by UID or Email...',
+    // Export / Import EN
+    btnExport:        'Export Backup',
+    btnImport:        'Restore Backup',
+    toastExportOk:    '✅ Data exported successfully',
+    toastImportOk:    '✅ Data imported successfully',
+    toastImportErr:   '❌ File error — make sure it is a valid JSON file',
+    toastImportEmpty: '⚠️ File contains no valid data',
+    toastCopied:      '📋 Copied!',
+    // Notifications EN
+    btnNotif:         '🔔 Enable Notifications',
+    btnNotifOn:       '🔔 Notifications On',
+    btnNotifDenied:   '🔕 Notifications Blocked',
+    notifStage1Title: 'Stage 1 Complete ✓',
+    notifStage1Body:  'Account ready for tasks — UID: ',
+    notifStage2Title: 'Account Fully Complete 🎉',
+    notifStage2Body:  'Stage 2 finished successfully — UID: ',
+    // Filter / Sort EN
+    filterAll:        'All',
+    filterStage1:     'Stage 1',
+    filterStage2:     'Stage 2',
+    filterDone:       'Completed',
+    sortNewest:       'Newest First',
+    sortOldest:       'Oldest First',
+    sortSoonest:      'Expiring Soon',
+    // Dashboard EN
+    dashTotal:        'Total Accounts',
+    dashStage1:       'In Stage 1',
+    dashStage2:       'In Stage 2',
+    dashDone:         'Completed',
+    dashDeposits:     'Total Deposits',
+    dashExpiringSoon: 'Expiring Today',
+    // Audit Log EN
+    auditLog:         'Change Log',
+    auditCreated:     '🆕 Account Created',
+    auditEdited:      '✏️ Account Edited',
+    auditStage2:      '⚡ Stage 2 Started',
+    auditHide:        'Hide Log',
+    auditShow:        'View Log',
+  },
 
 // Data Integrity Panel
 let integrityPanelVisible = false;
@@ -495,8 +704,8 @@ function updateIntegrityPanelContent(result) {
   var total = Math.max(lsCount, idbCount, 1);
   var match = lsCount === idbCount && onlyInLS.length === 0 && onlyInIDB.length === 0;
   var statusColor = match ? '#22C55E' : '#F59E0B';
-  var statusIcon = match ? 'OK' : 'WARN';
-  var statusText = match ? (currentLang === 'ar' ? 'OK' : 'OK') : (currentLang === 'ar' ? 'WARN' : 'WARN');
+  var statusIcon = match ? '\u2705' : '\u26A0\uFE0F';
+  var statusText = match ? (currentLang === 'ar' ? '\u2705 متطابقة' : 'Synchronized') : (currentLang === 'ar' ? '\u26A0\uFE0F يوجد اختلاف' : 'Mismatch');
 
   var diffRows = '';
   if (onlyInLS.length > 0) {
@@ -573,7 +782,7 @@ async function syncToIDB() {
     var lsData = [];
     if (lsRaw) { try { lsData = JSON.parse(lsRaw); } catch(e) { lsData = []; } }
     if (!lsData.length) {
-      showToast('No data in LS');
+      showToast(currentLang === 'ar' ? '\u26A0\uFE0F لا توجد بيانات في localStorage' : '\u26A0\uFE0F No data in localStorage');
       if (btn) { btn.disabled = false; btn.textContent = t('integritySyncToIDB'); }
       return;
     }
@@ -613,7 +822,7 @@ async function restoreFromIDB() {
       req.onerror = function() { rej(req.error); };
     });
     if (!idbRaw || !idbRaw.length) {
-      showToast('No data in IDB');
+      showToast(currentLang === 'ar' ? '\u26A0\uFE0F لا توجد بيانات في IndexedDB' : '\u26A0\uFE0F No data in IndexedDB');
       if (btn) { btn.disabled = false; btn.textContent = t('integrityRestoreFromIDB'); }
       return;
     }
