@@ -196,6 +196,8 @@ const TRANSLATIONS = {
     auditShow:        'عرض السجل',
     // IDB
     idbRestored:      '💾 تم استعادة البيانات من النسخة الاحتياطية',
+    toastNoDataExport: '⚠️ لا توجد بيانات للتصدير',
+    toastNotifSupport: '⚠️ المتصفح لا يدعم الإشعارات',
   },
   en: {
     // Header
@@ -1387,7 +1389,7 @@ function toggleAuditLog(id) {
 // ─── Browser Notifications ───────────────────────────────────────────────────
 function requestNotifPermission() {
   if (!('Notification' in window)) {
-    showToast('⚠️ المتصفح لا يدعم الإشعارات');
+    showToast(t('toastNotifSupport'));
     return;
   }
   Notification.requestPermission().then(perm => {
@@ -1497,7 +1499,7 @@ function checkPendingNotifications() {
 
 // ─── Export / Import ─────────────────────────────────────────────────────────
 function exportAccounts() {
-  if (!accounts.length) { showToast('⚠️ لا توجد بيانات للتصدير'); return; }
+  if (!accounts.length) { showToast(t('toastNoDataExport')); return; }
   const data = JSON.stringify(accounts, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
