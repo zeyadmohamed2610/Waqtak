@@ -23,6 +23,9 @@ let depositUTC          = null;   // Date object (UTC epoch)
 let target1UTC          = null;   // depositUTC + 4 days
 let target2UTC          = null;   // depositUTC + 8 days
 let currentLang         = 'ar';   // 'ar' or 'en'
+let currentMode         = 'calculator'; // 'calculator' or 'manager'
+let accounts            = [];           // Array of manager accounts
+let accountsInterval    = null;         // Live update ticker for manager mode
 
 // ─── i18n Translations ───────────────────────────────────────────────────────
 const TRANSLATIONS = {
@@ -113,6 +116,39 @@ const TRANSLATIONS = {
     toastPickDate:   '⚠️ الرجاء اختيار التاريخ والوقت',
     toastFuture:     '⚠️ التاريخ يبدو بعيداً جداً في المستقبل، تحقق من الإدخال',
     toastClearConfirm: 'هل تريد مسح جميع السجلات؟',
+    // Mode Switcher
+    modeCalc:         'الحاسبة السريعة',
+    modeMgr:          'مدير الحسابات',
+    // Account Manager Form & Cards
+    btnAddAccount:    'إضافة حساب جديد',
+    formTitleAdd:     'حساب جديد',
+    formTitleEdit:    'تعديل الحساب',
+    formSubtitle:     'أدخل تفاصيل حساب Bybit لحفظه وتتبعه',
+    fieldUID:         'Bybit UID',
+    fieldEmail:       'البريد الإلكتروني',
+    fieldIP:          'عنوان IP',
+    fieldAmount:      'كمية الإيداع ($)',
+    fieldTime:        'وقت الإيداع',
+    btnNow:           'الآن',
+    fieldNotes:       'ملاحظات (اختياري)',
+    btnSave:          'حفظ الحساب',
+    btnCancel:        'إلغاء',
+    toastFillRequired:'⚠️ يُرجى تحديد تاريخ ووقت الإيداع على الأقل!',
+    toastClearAcctConfirm: 'هل تريد حذف هذا الحساب نهائياً؟',
+    cardStage1:       'مرحلة 1: مراجعة (4 أيام)',
+    cardStage1Done:   'مرحلة 1: جاهز للمهمات ✓',
+    cardStage2:       'مرحلة 2: انتظار (4 أيام)',
+    cardStage2Done:   'مكتمل وجاهز بالكامل ✓',
+    cardEmail:        'البريد:',
+    cardIP:           'الـ IP:',
+    cardAmount:       'الإيداع:',
+    cardNotes:        'ملاحظات:',
+    cardBtnStage2:    'إتمام المهمة وبدء المرحلة 2 ⚡',
+    cardTimeRemaining:'متبقي: ',
+    cardTimeOverdue:  'تجاوز منذ: ',
+    cardCreated:      'تاريخ البدء: ',
+    cardStage2Started:'تحديث المرحلة 2: ',
+    searchPlaceholder:'بحث بالـ UID أو البريد الإلكتروني...',
   },
   en: {
     // Header
@@ -201,6 +237,39 @@ const TRANSLATIONS = {
     toastPickDate:   '⚠️ Please pick a date and time',
     toastFuture:     '⚠️ Date seems too far in the future, please check your input',
     toastClearConfirm: 'Delete all saved records?',
+    // Mode Switcher
+    modeCalc:         'Quick Calculator',
+    modeMgr:          'Account Manager',
+    // Account Manager Form & Cards
+    btnAddAccount:    'Add New Account',
+    formTitleAdd:     'New Account',
+    formTitleEdit:    'Edit Account',
+    formSubtitle:     'Enter Bybit account details to save and track',
+    fieldUID:         'Bybit UID',
+    fieldEmail:       'Email Address',
+    fieldIP:          'IP Address',
+    fieldAmount:      'Deposit Amount ($)',
+    fieldTime:        'Deposit Time',
+    btnNow:           'Now',
+    fieldNotes:       'Notes (Optional)',
+    btnSave:          'Save Account',
+    btnCancel:        'Cancel',
+    toastFillRequired:'⚠️ Please specify at least the deposit date and time!',
+    toastClearAcctConfirm: 'Are you sure you want to delete this account permanently?',
+    cardStage1:       'Stage 1: Review (4 days)',
+    cardStage1Done:   'Stage 1: Ready for tasks ✓',
+    cardStage2:       'Stage 2: Pending (4 days)',
+    cardStage2Done:   'Fully Completed & Ready ✓',
+    cardEmail:        'Email:',
+    cardIP:           'IP:',
+    cardAmount:       'Deposit:',
+    cardNotes:        'Notes:',
+    cardBtnStage2:    'Complete tasks & start Stage 2 ⚡',
+    cardTimeRemaining:'Remaining: ',
+    cardTimeOverdue:  'Overdue by: ',
+    cardCreated:      'Start Date: ',
+    cardStage2Started:'Stage 2 Update: ',
+    searchPlaceholder:'Search by UID or Email...',
   }
 };
 
@@ -220,6 +289,24 @@ function applyI18n() {
     const val = t(key);
     if (val !== undefined) el.innerHTML = val;
   });
+
+  // Dynamically update placeholder for search input
+  const searchInput = $('mgr-search');
+  if (searchInput) {
+    searchInput.placeholder = t('searchPlaceholder');
+  }
+
+  // Update placeholder for UID input
+  const uidInput = $('field-uid');
+  if (uidInput) {
+    uidInput.placeholder = isRTL ? 'مثال: 12345678' : 'e.g. 12345678';
+  }
+
+  // Update placeholder for Notes input
+  const notesInput = $('field-notes');
+  if (notesInput) {
+    notesInput.placeholder = isRTL ? 'أضف أي ملاحظات هنا...' : 'Add any notes here...';
+  }
 
   // Toggle button label
   const btn = $('lang-toggle-btn');
@@ -921,8 +1008,358 @@ function showToast(msg) {
 
 // ─── Init & Language Load ───────────────────────────────────────────────────
 currentLang = localStorage.getItem('bybit_tracker_lang') || 'ar';
+currentMode = localStorage.getItem('bybit_tracker_mode') || 'calculator';
 applyI18n();
 renderHistory();
 
+// Load accounts
+accounts = getAccounts();
+
+// Switch to default mode
+switchMode(currentMode);
+
 // Refresh history timestamps every 30s
 setInterval(renderHistory, 30000);
+
+
+// ─── Mode Switching ──────────────────────────────────────────────────────────
+function switchMode(mode) {
+  currentMode = mode;
+  localStorage.setItem('bybit_tracker_mode', mode);
+
+  const calcBtn = $('mode-calc-btn');
+  const mgrBtn  = $('mode-mgr-btn');
+  const calcContainer = $('mode-calculator-container');
+  const mgrContainer  = $('mode-manager-container');
+
+  if (mode === 'manager') {
+    calcBtn.classList.remove('active');
+    mgrBtn.classList.add('active');
+    calcContainer.style.display = 'none';
+    mgrContainer.style.display  = 'block';
+
+    // Start account card live updating interval
+    clearInterval(accountsInterval);
+    renderAccounts();
+    accountsInterval = setInterval(tickAccounts, 1000);
+
+  } else {
+    calcBtn.classList.add('active');
+    mgrBtn.classList.remove('active');
+    calcContainer.style.display = 'block';
+    mgrContainer.style.display  = 'none';
+
+    // Stop account card live updating interval
+    clearInterval(accountsInterval);
+  }
+}
+
+// ─── Account Manager Operations ──────────────────────────────────────────────
+function getAccounts() {
+  try {
+    return JSON.parse(localStorage.getItem('bybit_tracker_accounts') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveAccounts() {
+  localStorage.setItem('bybit_tracker_accounts', JSON.stringify(accounts));
+}
+
+function openAddForm() {
+  // Clear inputs
+  $('edit-account-id').value = '';
+  $('field-uid').value    = '';
+  $('field-email').value  = '';
+  $('field-ip').value     = '';
+  $('field-amount').value = '';
+  $('field-notes').value  = '';
+
+  $('form-card-title').textContent = t('formTitleAdd');
+  setFormTimeToNow();
+
+  $('account-form-card').style.display = 'block';
+  $('account-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeForm() {
+  $('account-form-card').style.display = 'none';
+}
+
+function setFormTimeToNow() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  $('field-date').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  $('field-time').value = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+function saveAccount() {
+  const idVal  = $('edit-account-id').value;
+  const uid    = $('field-uid').value.trim();
+  const email  = $('field-email').value.trim();
+  const ip     = $('field-ip').value.trim();
+  const amount = $('field-amount').value.trim();
+  const notes  = $('field-notes').value.trim();
+  
+  const dateStr = $('field-date').value;
+  const timeStr = $('field-time').value || '00:00:00';
+
+  if (!dateStr) {
+    showToast(t('toastFillRequired'));
+    return;
+  }
+
+  const dateParts = dateStr.split('-').map(Number);
+  const timeParts = timeStr.split(':').map(Number);
+  const depositTime = localToUTC(
+    dateParts[0], dateParts[1] - 1, dateParts[2],
+    timeParts[0], timeParts[1], timeParts.length >= 3 ? timeParts[2] : 0,
+    EGYPT_TZ
+  );
+
+  if (idVal) {
+    // Edit existing
+    const id = Number(idVal);
+    const idx = accounts.findIndex(a => a.id === id);
+    if (idx !== -1) {
+      accounts[idx].uid = uid;
+      accounts[idx].email = email;
+      accounts[idx].ip = ip;
+      accounts[idx].amount = amount;
+      accounts[idx].notes = notes;
+      accounts[idx].depositTime = depositTime.toISOString();
+    }
+  } else {
+    // Create new
+    const newAcct = {
+      id: Date.now(),
+      uid: uid,
+      email: email,
+      ip: ip,
+      amount: amount,
+      notes: notes,
+      depositTime: depositTime.toISOString(),
+      stage: 1,
+      stage2StartTime: null
+    };
+    accounts.unshift(newAcct);
+  }
+
+  saveAccounts();
+  closeForm();
+  renderAccounts();
+}
+
+function editAccount(id) {
+  const acct = accounts.find(a => a.id === id);
+  if (!acct) return;
+
+  $('edit-account-id').value = acct.id;
+  $('field-uid').value    = acct.uid;
+  $('field-email').value  = acct.email;
+  $('field-ip').value     = acct.ip;
+  $('field-amount').value = acct.amount;
+  $('field-notes').value  = acct.notes;
+
+  const depDate = new Date(acct.depositTime);
+  const pad = n => String(n).padStart(2, '0');
+  $('field-date').value = `${depDate.getFullYear()}-${pad(depDate.getMonth()+1)}-${pad(depDate.getDate())}`;
+  $('field-time').value = `${pad(depDate.getHours())}:${pad(depDate.getMinutes())}:${pad(depDate.getSeconds())}`;
+
+  $('form-card-title').textContent = t('formTitleEdit');
+  $('account-form-card').style.display = 'block';
+  $('account-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteAccount(id) {
+  if (!confirm(t('toastClearAcctConfirm'))) return;
+  accounts = accounts.filter(a => a.id !== id);
+  saveAccounts();
+  renderAccounts();
+}
+
+function transitionStage2(id) {
+  const acct = accounts.find(a => a.id === id);
+  if (!acct) return;
+
+  acct.stage = 2;
+  acct.stage2StartTime = new Date().toISOString();
+  saveAccounts();
+  renderAccounts();
+}
+
+function filterAccounts() {
+  renderAccounts();
+}
+
+function renderAccounts() {
+  const grid = $('accounts-grid');
+  if (!grid) return;
+
+  const query = ($('mgr-search')?.value || '').trim().toLowerCase();
+
+  // Filter accounts
+  const filtered = accounts.filter(acct => {
+    if (!query) return true;
+    return (acct.uid && acct.uid.toLowerCase().includes(query)) ||
+           (acct.email && acct.email.toLowerCase().includes(query));
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-history" style="grid-column: 1 / -1; width: 100%; padding: 40px 0;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+        <p>${currentLang === 'ar' ? 'لا توجد حسابات مطابقة للبحث' : 'No matching accounts found'}</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+
+  filtered.forEach(acct => {
+    const card = el('div', 'card account-card');
+    card.id = `account-card-${acct.id}`;
+
+    const deposit = new Date(acct.depositTime);
+    const hasStage2 = acct.stage === 2;
+    const stage2Start = hasStage2 ? new Date(acct.stage2StartTime) : null;
+
+    card.innerHTML = `
+      <div class="account-card-header">
+        <div class="account-title-group">
+          <span class="account-uid-title"># ${acct.uid || '—'}</span>
+          <span class="account-status-badge">...</span>
+        </div>
+        <div class="account-actions">
+          <button class="icon-action-btn edit-acct-btn" onclick="editAccount(${acct.id})" title="${t('formTitleEdit')}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="icon-action-btn delete-acct-btn" onclick="deleteAccount(${acct.id})" title="${currentLang === 'ar' ? 'حذف' : 'Delete'}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div class="account-card-body">
+        <div class="account-info-row">
+          <span class="info-label-inline">${t('cardEmail')}</span>
+          <span class="info-value-inline">${acct.email || '—'}</span>
+        </div>
+        <div class="account-info-row">
+          <span class="info-label-inline">${t('cardIP')}</span>
+          <span class="info-value-inline">${acct.ip || '—'}</span>
+        </div>
+        <div class="account-info-row">
+          <span class="info-label-inline">${t('cardAmount')}</span>
+          <span class="info-value-inline" style="color:var(--gold);font-weight:600;">$${acct.amount || '—'}</span>
+        </div>
+        
+        <div class="account-timer-section">
+          <div class="account-timer-label">${t('statActiveLabel')}</div>
+          <div class="account-timer-val">—</div>
+        </div>
+        
+        ${acct.notes ? `
+          <div class="account-notes-section">
+            <div class="notes-title">${t('cardNotes')}</div>
+            <div class="notes-text">${acct.notes}</div>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="account-card-footer">
+        <div class="card-time-meta">
+          <div>${t('cardCreated')} ${formatEgyptShort(deposit)}</div>
+          ${hasStage2 ? `<div>${t('cardStage2Started')} ${formatEgyptShort(stage2Start)}</div>` : ''}
+        </div>
+        <div class="card-actions-row"></div>
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  // Immediate ticker call to set countdowns
+  tickAccounts();
+}
+
+function tickAccounts() {
+  const now = new Date();
+  accounts.forEach(account => {
+    const card = $(`account-card-${account.id}`);
+    if (!card) return;
+
+    const deposit = new Date(account.depositTime);
+    const target1 = new Date(deposit.getTime() + 4 * 24 * 3600 * 1000);
+
+    const badge = card.querySelector('.account-status-badge');
+    const countdownEl = card.querySelector('.account-timer-val');
+    const actionBtnRow = card.querySelector('.card-actions-row');
+
+    if (account.stage === 1) {
+      const remaining1 = target1 - now;
+      if (remaining1 <= 0) {
+        // Stage 1 Completed (Action required)
+        if (badge && !badge.classList.contains('stage1-done')) {
+          badge.className = 'account-status-badge stage1-done';
+          badge.textContent = t('cardStage1Done');
+        }
+        if (countdownEl) {
+          countdownEl.textContent = t('dynReady');
+          countdownEl.style.color = '#3B82F6'; // Info blue
+        }
+        if (actionBtnRow && !actionBtnRow.querySelector('.stage2-btn')) {
+          actionBtnRow.innerHTML = `
+            <button class="calc-btn stage2-btn" onclick="transitionStage2(${account.id})">
+              <span>${t('cardBtnStage2')}</span>
+            </button>
+          `;
+        }
+      } else {
+        // Stage 1 Active (Counting down 4 days)
+        if (badge && !badge.classList.contains('stage1-active')) {
+          badge.className = 'account-status-badge stage1-active';
+          badge.textContent = t('cardStage1');
+        }
+        if (countdownEl) {
+          countdownEl.textContent = formatDuration(remaining1);
+          countdownEl.style.color = 'var(--gold)';
+        }
+      }
+    } else if (account.stage === 2) {
+      const stage2Start = new Date(account.stage2StartTime);
+      const target2 = new Date(stage2Start.getTime() + 4 * 24 * 3600 * 1000);
+      const remaining2 = target2 - now;
+
+      if (remaining2 <= 0) {
+        // Stage 2 Completed (Full Done)
+        if (badge && !badge.classList.contains('stage2-done')) {
+          badge.className = 'account-status-badge stage2-done';
+          badge.textContent = t('cardStage2Done');
+        }
+        if (countdownEl) {
+          countdownEl.textContent = t('dynReady');
+          countdownEl.style.color = 'var(--success)';
+        }
+        if (actionBtnRow) actionBtnRow.innerHTML = ''; // Hide action button
+      } else {
+        // Stage 2 Active (Counting down 4 days since tasks done)
+        if (badge && !badge.classList.contains('stage2-active')) {
+          badge.className = 'account-status-badge stage2-active';
+          badge.textContent = t('cardStage2');
+        }
+        if (countdownEl) {
+          countdownEl.textContent = formatDuration(remaining2);
+          countdownEl.style.color = 'var(--warning)';
+        }
+      }
+    }
+  });
+}
