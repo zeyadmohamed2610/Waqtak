@@ -1840,3 +1840,77 @@ body {
 
 /* --- Selection --- */
 ::selection { background: rgba(247,166,0,0.25); color: var(--text-primary); }
+
+/* ─── IP Conflict Alert ─────────────────────────────────────────────────── */
+.ip-conflict-card {
+  border-color: rgba(239, 68, 68, 0.55) !important;
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.25),
+    0 4px 20px rgba(239, 68, 68, 0.12),
+    inset 0 0 40px rgba(239, 68, 68, 0.04);
+  animation: conflict-pulse 3s ease-in-out infinite;
+}
+
+@keyframes conflict-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(239,68,68,0.25), 0 4px 20px rgba(239,68,68,0.12); }
+  50%       { box-shadow: 0 0 0 2px rgba(239,68,68,0.45), 0 4px 28px rgba(239,68,68,0.25); }
+}
+
+.ip-conflict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  margin-inline-start: 6px;
+  vertical-align: middle;
+  cursor: help;
+  letter-spacing: 0.03em;
+  transition: background 0.2s;
+}
+
+.ip-conflict-badge:hover {
+  background: rgba(239, 68, 68, 0.28);
+}
+
+/* ─── Integrity Check Button ─────────────────────────────────────────────── */
+.integrity-btn {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.15) 100%);
+  border-color: rgba(139, 92, 246, 0.35);
+  color: #A78BFA;
+}
+
+.integrity-btn:hover {
+  background: linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(139,92,246,0.28) 100%);
+  border-color: rgba(139, 92, 246, 0.6);
+  color: #C4B5FD;
+  transform: translateY(-1px);
+}
+
+.integrity-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* Flash green on OK result */
+@keyframes integrity-ok {
+  0%   { background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(5,150,105,0.15) 100%); border-color: rgba(16,185,129,0.5); color: #34D399; }
+  100% { background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.15) 100%); border-color: rgba(139,92,246,0.35); color: #A78BFA; }
+}
+
+.integrity-ok-flash {
+  animation: integrity-ok 2.5s ease forwards;
+}
+
+/* ─── Multi-line Toast Support ───────────────────────────────────────────── */
+.toast {
+  white-space: pre-line;
+  line-height: 1.55;
+  text-align: start;
+}

@@ -198,6 +198,18 @@ const TRANSLATIONS = {
     idbRestored:      '💾 تم استعادة البيانات من النسخة الاحتياطية',
     toastNoDataExport: '⚠️ لا توجد بيانات للتصدير',
     toastNotifSupport: '⚠️ المتصفح لا يدعم الإشعارات',
+    // IP Conflict
+    ipConflictBadge:  '⚠️ IP مكرر',
+    ipConflictTip:    'هذا الـ IP مستخدم في حسابات أخرى — خطر ربط الحسابات!',
+    // Data Integrity Check
+    btnIntegrity:     '🔍 فحص سلامة البيانات',
+    integrityOk:      '✅ البيانات سليمة — localStorage وIndexedDB متطابقان',
+    integrityMismatch:'⚠️ تحذير: يوجد اختلاف بين localStorage وIndexedDB!',
+    integrityLSOnly:  '📦 localStorage: {n} حساب',
+    integrityIDBOnly: '💾 IndexedDB: {n} حساب',
+    integrityDiff:    '❌ المفقود من IndexedDB: {n} حساب',
+    integrityNoIDB:   '⚠️ IndexedDB غير متاح',
+    integrityChecking:'🔄 جاري الفحص...',
   },
   en: {
     // Header
@@ -359,6 +371,18 @@ const TRANSLATIONS = {
     auditShow:        'View Log',
     // IDB
     idbRestored:      '💾 Data restored from backup storage',
+    // IP Conflict
+    ipConflictBadge:  '⚠️ Duplicate IP',
+    ipConflictTip:    'This IP is used by other accounts — risk of account linking!',
+    // Data Integrity Check
+    btnIntegrity:     '🔍 Data Integrity Check',
+    integrityOk:      '✅ Data intact — localStorage and IndexedDB match',
+    integrityMismatch:'⚠️ Warning: Mismatch between localStorage and IndexedDB!',
+    integrityLSOnly:  '📦 localStorage: {n} account(s)',
+    integrityIDBOnly: '💾 IndexedDB: {n} account(s)',
+    integrityDiff:    '❌ Missing from IndexedDB: {n} account(s)',
+    integrityNoIDB:   '⚠️ IndexedDB not available',
+    integrityChecking:'🔄 Checking...',
   }
 };
 
@@ -1657,9 +1681,18 @@ function renderAccounts() {
 
   grid.innerHTML = '';
 
+  // ── Build IP conflict map (IPs used by >1 account across ALL accounts) ──
+  const ipCount = {};
+  accounts.forEach(a => { if (a.ip) ipCount[a.ip] = (ipCount[a.ip] || 0) + 1; });
+  const conflictIPs = new Set(Object.keys(ipCount).filter(ip => ipCount[ip] > 1));
+
   filtered.forEach(acct => {
     const card = el('div', 'card account-card');
     card.id = `account-card-${acct.id}`;
+
+    // Mark IP conflict
+    const hasIPConflict = acct.ip && conflictIPs.has(acct.ip);
+    if (hasIPConflict) card.classList.add('ip-conflict-card');
 
     const deposit = new Date(acct.depositTime);
     const hasStage2 = acct.stage === 2;
@@ -1704,7 +1737,11 @@ function renderAccounts() {
         </div>
         <div class="account-info-row">
           <span class="info-label-inline">${t('cardIP')}</span>
-          <span class="info-value-inline">${acct.ip || '—'}</span>
+          <span class="info-value-inline">${acct.ip || '—'}${
+            hasIPConflict
+              ? ` <span class="ip-conflict-badge" title="${t('ipConflictTip')}">${t('ipConflictBadge')}</span>`
+              : ''
+          }</span>
           <button class="copy-icon-btn" onclick="copyToClipboard('${acct.ip}', 'IP')" title="Copy IP">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
@@ -1825,4 +1862,62 @@ function tickAccounts() {
       }
     }
   });
+}
+
+// ─── Data Integrity Check ─────────────────────────────────────────────────────
+async function checkDataIntegrity() {
+  const btn = document.getElementById('integrity-check-btn');
+  if (btn) { btn.disabled = true; btn.textContent = t('integrityChecking'); }
+  try {
+    const lsRaw   = localStorage.getItem(STORAGE_KEY);
+    const lsData  = lsRaw ? JSON.parse(lsRaw) : [];
+    const lsCount = Array.isArray(lsData) ? lsData.length : 0;
+    const lsIDs   = new Set((Array.isArray(lsData) ? lsData : []).map(a => a.id));
+
+    if (!idb) { showToast(t('integrityNoIDB'), 4000); return; }
+
+    const idbData = await new Promise((res, rej) => {
+      const tx  = idb.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).getAll();
+      req.onsuccess = () => res(req.result || []);
+      req.onerror   = () => rej(req.error);
+    });
+
+    const idbCount = idbData.length;
+    const idbIDs   = new Set(idbData.map(a => a.id));
+    const missingFromIDB = [...lsIDs].filter(id => !idbIDs.has(id)).length;
+
+    if (lsCount === idbCount && missingFromIDB === 0) {
+      showToast(t('integrityOk'), 4000);
+      if (btn) {
+        btn.classList.add('integrity-ok-flash');
+        setTimeout(() => btn.classList.remove('integrity-ok-flash'), 2500);
+      }
+    } else {
+      const lines = [
+        t('integrityMismatch'),
+        t('integrityLSOnly').replace('{n}', lsCount),
+        t('integrityIDBOnly').replace('{n}', idbCount),
+      ];
+      if (missingFromIDB > 0) {
+        lines.push(t('integrityDiff').replace('{n}', missingFromIDB));
+        // Auto-repair: sync LS into IDB
+        await new Promise((res, rej) => {
+          const repairTx  = idb.transaction(IDB_STORE, 'readwrite');
+          const repairStr = repairTx.objectStore(IDB_STORE);
+          lsData.forEach(item => repairStr.put(item));
+          repairTx.oncomplete = res;
+          repairTx.onerror    = () => rej(repairTx.error);
+        });
+        lines.push(currentLang === 'ar'
+          ? '\uD83D\uDD27 \u062a\u0645 \u0627\u0644\u0625\u0635\u0644\u0627\u062d \u0627\u0644\u062a\u0644\u0642\u0627\u0626\u064a \u0645\u0646 localStorage'
+          : '\uD83D\uDD27 Auto-repaired from localStorage');
+      }
+      showToast(lines.join('\n'), 7000);
+    }
+  } catch (err) {
+    showToast('\u274c ' + err.message, 4000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = t('btnIntegrity'); }
+  }
 }
