@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>وقتك | Waqtak</title>
-  <meta name="description" content="أداة احترافية لتتبع حسابات Bybit وحساب مواعيد المراجعة بعد 4 أيام والجاهزية بعد 8 أيام بالتوقيت المصري" />
+  <meta name="description" content="أداة متابعة حسابات Bybit" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -12,12 +12,9 @@
 </head>
 <body>
 
-  <!-- Animated Background -->
   <div class="bg-mesh"></div>
   <div class="bg-grid"></div>
 
-
-  <!-- Header -->
   <header class="header">
     <div class="header-inner">
       <div class="logo">
@@ -36,7 +33,7 @@
       <div class="header-info-wrapper">
         <div class="header-info">
           <div class="clock-live" id="live-clock">--:--:--</div>
-          <div class="clock-label" data-i18n="clockLabel">التوقيت المصري الآن</div>
+          <div class="clock-label" data-i18n="clockLabel">التوقيت العالمي الآن (UTC)</div>
         </div>
         <button id="lang-toggle-btn" class="lang-toggle-btn" onclick="toggleLanguage()">
           <span data-i18n="langToggleText">English</span>
@@ -48,143 +45,68 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="main">
 
-    <!-- Hero Section -->
     <section class="hero">
       <div class="hero-badge">
         <span class="badge-dot"></span>
         <span data-i18n="heroBadge">متابعة الإيداعات والنشاط</span>
       </div>
-      <h1 class="hero-title" data-i18n="heroTitle">
-        تتبع مواعيد<br/>حساباتك خطوة بخطوة
-      </h1>
-      <p class="hero-desc" data-i18n="heroDesc">
-        أ    <!-- Mode Switcher -->
+      <h1 class="hero-title" data-i18n="heroTitle">تتبع مواعيد حسابك<br/>خطوة بخطوة بدقة</h1>
+      <p class="hero-desc" data-i18n="heroDesc">أدخل تاريخ الإيداع من رسالة Gmail وسيحسب الأداة تلقائياً المراجعة بعد <strong>4 أيام</strong> والاستعداد بعد <strong>8 أيام</strong></p>
+    </section>
+
     <div class="mode-switcher-wrapper">
       <div class="mode-switcher">
         <button id="mode-calc-btn" class="mode-btn active" onclick="switchMode('calculator')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
           <span data-i18n="modeCalc">الحاسبة السريعة</span>
         </button>
         <button id="mode-mgr-btn" class="mode-btn" onclick="switchMode('manager')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span data-i18n="modeMgr">مدير الحسابات</span>
         </button>
       </div>
     </div>
 
-    <!-- MODE 1: Calculator Container -->
     <div id="mode-calculator-container">
-      <!-- Input Card -->
       <section class="input-section" id="input-section">
         <div class="card input-card">
           <div class="card-header">
-            <div class="card-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </div>
+            <div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div>
               <h2 class="card-title" data-i18n="inputCardTitle">إدخال تاريخ الإيداع</h2>
               <p class="card-subtitle" data-i18n="inputCardSubtitle">الصق التاريخ من رسالة Gmail أو أدخله يدوياً</p>
             </div>
           </div>
-
-          <!-- Format Tabs -->
           <div class="format-tabs" role="tablist">
-            <button class="tab-btn active" id="tab-utc" role="tab" aria-selected="true" onclick="switchTab('utc')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              <span data-i18n="tabUTC">UTC Format</span>
-            </button>
-            <button class="tab-btn" id="tab-gmail" role="tab" aria-selected="false" onclick="switchTab('gmail')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <span data-i18n="tabGmail">Gmail Format</span>
-            </button>
-            <button class="tab-btn" id="tab-manual" role="tab" aria-selected="false" onclick="switchTab('manual')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              <span data-i18n="tabManual">يدوي</span>
-            </button>
+            <button class="tab-btn active" id="tab-utc" role="tab" aria-selected="true" onclick="switchTab('utc')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span data-i18n="tabUTC">UTC Format</span></button>
+            <button class="tab-btn" id="tab-gmail" role="tab" aria-selected="false" onclick="switchTab('gmail')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span data-i18n="tabGmail">Gmail Format</span></button>
+            <button class="tab-btn" id="tab-manual" role="tab" aria-selected="false" onclick="switchTab('manual')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span data-i18n="tabManual">يدوي</span></button>
           </div>
-
-          <!-- UTC Input -->
           <div class="tab-content active" id="content-utc">
-            <label class="input-label" data-i18n="labelUTC">
-              تنسيق UTC — مثال: <code>2026-05-26 11:36:42 (UTC+0)</code>
-            </label>
+            <label class="input-label" data-i18n="labelUTC">تنسيق UTC — مثال: <code>2026-05-26 11:36:42 (UTC+0)</code></label>
             <div class="input-wrapper">
-              <input
-                type="text"
-                id="utc-input"
-                class="text-input"
-                placeholder="2026-05-26 11:36:42 (UTC+0)"
-                autocomplete="off"
-                spellcheck="false"
-                dir="ltr"
-              />
-              <button class="paste-btn" onclick="pasteFromClipboard('utc-input')" title="لصق من الحافظة">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <rect x="8" y="2" width="8" height="4" rx="1"/>
-                </svg>
-              </button>
+              <input type="text" id="utc-input" class="text-input" placeholder="2026-05-26 11:36:42 (UTC+0)" autocomplete="off" spellcheck="false" dir="ltr" />
+              <button class="paste-btn" onclick="pasteFromClipboard('utc-input')" title="لصق من الحافظة"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></button>
             </div>
           </div>
-
-          <!-- Gmail Input -->
           <div class="tab-content" id="content-gmail">
-            <label class="input-label" data-i18n="labelGmail">
-              تنسيق Gmail — مثال: <code>May 26, 2026, 2:36 PM</code>
-            </label>
+            <label class="input-label" data-i18n="labelGmail">تنسيق Gmail — مثال: <code>May 26, 2026, 2:36 PM</code></label>
             <div class="input-wrapper">
-              <input
-                type="text"
-                id="gmail-input"
-                class="text-input"
-                placeholder="May 26, 2026, 2:36 PM"
-                autocomplete="off"
-                spellcheck="false"
-                dir="ltr"
-              />
-              <button class="paste-btn" onclick="pasteFromClipboard('gmail-input')" title="لصق من الحافظة">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  <rect x="8" y="2" width="8" height="4" rx="1"/>
-                </svg>
-              </button>
+              <input type="text" id="gmail-input" class="text-input" placeholder="May 26, 2026, 2:36 PM" autocomplete="off" spellcheck="false" dir="ltr" />
+              <button class="paste-btn" onclick="pasteFromClipboard('gmail-input')" title="لصق من الحافظة"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></button>
             </div>
-            <p class="input-note">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              <span data-i18n="gmailNote">Gmail يعرض التوقيت المحلي لإعدادات حسابك — يُعالج تلقائياً حسب UTC</span>
-            </p>
+            <p class="input-note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span data-i18n="gmailNote">Gmail يُظهر التوقيت المحلي لحسابك — يُعدَل تلقائياً إلى توقيت UTC</span></p>
           </div>
-
-          <!-- Manual Input -->
           <div class="tab-content" id="content-manual">
-            <label class="input-label" data-i18n="labelManual">اختر تاريخ ووقت الإيداع (بالتوقيت المصري)</label>
-            <div class="manual-inputs">
-              <input type="date" id="manual-date" class="text-input date-input" dir="ltr" />
-              <input type="time" id="manual-time" class="text-input time-input" dir="ltr" step="1" />
-            </div>
+            <label class="input-label" data-i18n="labelManual">اختر تاريخ ووقت الإيداع (بالتوقيت المحلي)</label>
+            <div class="manual-inputs"><input type="date" id="manual-date" class="text-input date-input" dir="ltr" /><input type="time" id="manual-time" class="text-input time-input" dir="ltr" step="1" /></div>
           </div>
-
-          <!-- Calculate Button -->
           <button class="calc-btn" id="calc-btn" onclick="calculate()">
             <span class="calc-btn-text" data-i18n="btnCalculate">احسب الآن</span>
-            <svg class="calc-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
+            <svg class="calc-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-
-          <!-- Quick Examples -->
           <div class="quick-examples">
             <span class="examples-label" data-i18n="exampleLabel">أمثلة سريعة:</span>
             <button class="example-chip" onclick="fillExample('utc', '2026-05-26 11:36:42 (UTC+0)')" data-i18n="exampleUTC">مثال UTC</button>
@@ -193,324 +115,134 @@
         </div>
       </section>
 
-      <!-- Results Section -->
       <section class="results-section" id="results-section" style="display:none;">
-        <!-- Status Banner -->
-        <div class="status-banner" id="status-banner">
-          <div class="status-icon" id="status-icon"></div>
-          <div class="status-text">
-            <div class="status-title" id="status-title"></div>
-            <div class="status-subtitle" id="status-subtitle"></div>
-          </div>
-          <div class="status-badge" id="status-badge"></div>
-        </div>
-
-        <!-- Progress Ring -->
+        <div class="status-banner" id="status-banner"><div class="status-icon" id="status-icon"></div><div class="status-text"><div class="status-title" id="status-title"></div><div class="status-subtitle" id="status-subtitle"></div></div><div class="status-badge" id="status-badge"></div></div>
         <div class="progress-wrapper">
           <div class="progress-card">
-            <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
-              <defs>
-                <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#F7A600"/>
-                  <stop offset="100%" stop-color="#FF6B35"/>
-                </linearGradient>
-              </defs>
-              <circle class="ring-bg" cx="100" cy="100" r="85" />
-              <circle class="ring-fill" id="ring-fill" cx="100" cy="100" r="85"
-                stroke="url(#ring-grad)"
-                stroke-dasharray="534"
-                stroke-dashoffset="534"
-                transform="rotate(-90 100 100)"
-              />
-            </svg>
-            <div class="progress-center">
-              <div class="progress-percent" id="progress-percent">0%</div>
-              <div class="progress-label" data-i18n="progressLabel">مكتمل</div>
-            </div>
+            <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200"><defs><linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F7A600"/><stop offset="100%" stop-color="#FF6B35"/></linearGradient></defs><circle class="ring-bg" cx="100" cy="100" r="85" /><circle class="ring-fill" id="ring-fill" cx="100" cy="100" r="85" stroke="url(#ring-grad)" stroke-dasharray="534" stroke-dashoffset="534" transform="rotate(-90 100 100)" /></svg>
+            <div class="progress-center"><div class="progress-percent" id="progress-percent">0%</div><div class="progress-label" data-i18n="progressLabel">مكتمل</div></div>
           </div>
           <div class="progress-info">
-            <!-- Step 1: Deposit -->
-            <div class="info-item">
-              <div class="info-icon deposit-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 5v14M5 12l7 7 7-7"/>
-                </svg>
-              </div>
-              <div>
-                <div class="info-label" data-i18n="depositLabel">تاريخ الإيداع (بالتوقيت المصري)</div>
-                <div class="info-value" id="deposit-display">—</div>
-              </div>
-            </div>
+            <div class="info-item"><div class="info-icon deposit-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div><div><div class="info-label" data-i18n="depositLabel">تاريخ الإيداع (بالتوقيت المحلي)</div><div class="info-value" id="deposit-display">—</div></div></div>
             <div class="timeline-line" id="line-1"></div>
-            <!-- Step 2: Milestone 1 -->
-            <div class="info-item" id="item-milestone-1">
-              <div class="info-icon target-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
-                </svg>
-              </div>
-              <div>
-                <div class="info-label" data-i18n="milestone1Label">المراجعة الأولى — بعد 4 أيام (بالتوقيت المصري)</div>
-                <div class="info-value" id="target1-display">—</div>
-              </div>
-            </div>
+            <div class="info-item" id="item-milestone-1"><div class="info-icon target-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div><div><div class="info-label" data-i18n="milestone1Label">المراجعة الأولى — بعد 4 أيام</div><div class="info-value" id="target1-display">—</div></div></div>
             <div class="timeline-line" id="line-2"></div>
-            <!-- Step 3: Milestone 2 -->
-            <div class="info-item" id="item-milestone-2">
-              <div class="info-icon completion-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
-                </svg>
-              </div>
-              <div>
-                <div class="info-label" data-i18n="milestone2Label">المراجعة الثانية والجاهزية — بعد 8 أيام (بالتوقيت المصري)</div>
-                <div class="info-value" id="target2-display">—</div>
-              </div>
-            </div>
+            <div class="info-item" id="item-milestone-2"><div class="info-icon completion-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div><div><div class="info-label" data-i18n="milestone2Label">المراجعة الثانية والاستعداد — بعد 8 أيام</div><div class="info-value" id="target2-display">—</div></div></div>
           </div>
         </div>
-
-        <!-- Stats Grid -->
         <div class="stats-grid">
-          <div class="stat-card elapsed">
-            <div class="stat-label" data-i18n="statElapsedLabel">مر على الإيداع</div>
-            <div class="stat-value" id="elapsed-display">—</div>
-          </div>
-          <div class="stat-card remaining">
-            <div class="stat-label" data-i18n="statActiveLabel">الهدف النشط حالياً</div>
-            <div class="stat-value" id="remaining-display">—</div>
-          </div>
-          <div class="stat-card days-elapsed">
-            <div class="stat-label" data-i18n="statStage1Label">المرحلة الأولى (4 أيام)</div>
-            <div class="stat-value" id="days-elapsed">—</div>
-          </div>
-          <div class="stat-card days-remaining">
-            <div class="stat-label" data-i18n="statStage2Label">المرحلة الثانية (8 أيام)</div>
-            <div class="stat-value" id="days-remaining">—</div>
-          </div>
+          <div class="stat-card elapsed"><div class="stat-label" data-i18n="statElapsedLabel">ما مر منذ الإيداع</div><div class="stat-value" id="elapsed-display">—</div></div>
+          <div class="stat-card remaining"><div class="stat-label" data-i18n="statActiveLabel">الهدف النشط الحالي</div><div class="stat-value" id="remaining-display">—</div></div>
+          <div class="stat-card stage1"><div class="stat-label" data-i18n="statStage1Label">المرحلة 1 (4 أيام)</div><div class="stat-value" id="days-elapsed-display">—</div></div>
+          <div class="stat-card stage2"><div class="stat-label" data-i18n="statStage2Label">المرحلة 2 (8 أيام)</div><div class="stat-value" id="days-remaining-display">—</div></div>
         </div>
-
-        <!-- Detailed Countdown -->
         <div class="countdown-section">
-          <div class="countdown-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span data-i18n="countdownTitle">العد التنازلي الدقيق</span>
-          </div>
+          <div class="countdown-title" data-i18n="countdownTitle">العداد التنازلي الدقيق</div>
           <div class="countdown-grid">
-            <div class="countdown-item">
-              <div class="countdown-num" id="cd-days">00</div>
-              <div class="countdown-label" data-i18n="cdDays">أيام</div>
-            </div>
-            <div class="countdown-sep">:</div>
-            <div class="countdown-item">
-              <div class="countdown-num" id="cd-hours">00</div>
-              <div class="countdown-label" data-i18n="cdHours">ساعات</div>
-            </div>
-            <div class="countdown-sep">:</div>
-            <div class="countdown-item">
-              <div class="countdown-num" id="cd-mins">00</div>
-              <div class="countdown-label" data-i18n="cdMins">دقائق</div>
-            </div>
-            <div class="countdown-sep">:</div>
-            <div class="countdown-item">
-              <div class="countdown-num" id="cd-secs">00</div>
-              <div class="countdown-label" data-i18n="cdSecs">ثواني</div>
-            </div>
+            <div class="countdown-item"><div class="countdown-val" id="cd-days">00</div><div class="countdown-label" data-i18n="cdDays">أيام</div></div>
+            <div class="countdown-item"><div class="countdown-val" id="cd-hours">00</div><div class="countdown-label" data-i18n="cdHours">ساعات</div></div>
+            <div class="countdown-item"><div class="countdown-val" id="cd-mins">00</div><div class="countdown-label" data-i18n="cdMins">دقائق</div></div>
+            <div class="countdown-item"><div class="countdown-val" id="cd-secs">00</div><div class="countdown-label" data-i18n="cdSecs">ثواني</div></div>
           </div>
         </div>
-
-        <!-- Reset Button -->
-        <button class="reset-btn" onclick="resetAll()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3"/>
-          </svg>
-          <span data-i18n="btnReset">إدخال تاريخ جديد</span>
-        </button>
+        <button class="reset-btn" id="reset-btn" onclick="resetAll()"><span data-i18n="btnReset">إدخال تاريخ جديد</span></button>
       </section>
 
-      <!-- History Section -->
       <section class="history-section" id="history-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span data-i18n="historySectionTitle">الحسابات المحفوظة</span>
-          </h2>
-          <button class="clear-history-btn" onclick="clearHistory()" id="clear-history-btn" style="display:none;" data-i18n="btnClearHistory">
-            مسح الكل
-          </button>
+        <div class="history-header">
+          <h2 class="history-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span data-i18n="historySectionTitle">السجل المحفوظ</span></h2>
+          <button class="clear-history-btn" onclick="clearHistory()" id="clear-history-btn" style="display:none;" data-i18n="btnClearHistory">مسح الكل</button>
         </div>
         <div class="history-list" id="history-list">
-          <div class="empty-history">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-            <p data-i18n="historyEmpty">لا توجد حسابات محفوظة بعد</p>
-          </div>
+          <div class="history-empty" id="history-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><p data-i18n="historyEmpty">لا توجد حسابات محفوظة بعد</p></div>
         </div>
       </section>
     </div>
 
-    <!-- MODE 2: Account Manager Container -->
     <div id="mode-manager-container" style="display: none;">
 
-      <!-- Dashboard Stats Bar -->
       <div class="dashboard-stats">
-        <div class="dash-stat-card">
-          <div class="dash-stat-num" id="dash-total">0</div>
-          <div class="dash-stat-label" data-i18n="dashTotal">????</div>
-        </div>
-        <div class="dash-stat-card stage1-card">
-          <div class="dash-stat-num" id="dash-stage1">0</div>
-          <div class="dash-stat-label" data-i18n="dashStage1">??????? 1</div>
-        </div>
-        <div class="dash-stat-card stage2-card">
-          <div class="dash-stat-num" id="dash-stage2">0</div>
-          <div class="dash-stat-label" data-i18n="dashStage2">??????? 2</div>
-        </div>
-        <div class="dash-stat-card done-card">
-          <div class="dash-stat-num" id="dash-done">0</div>
-          <div class="dash-stat-label" data-i18n="dashDone">??????</div>
-        </div>
-        <div class="dash-stat-card deposits-card">
-          <div class="dash-stat-num" id="dash-deposits">$0</div>
-          <div class="dash-stat-label" data-i18n="dashDeposits">?????????</div>
-        </div>
-        <div class="dash-stat-card soon-card">
-          <div class="dash-stat-num" id="dash-soon">0</div>
-          <div class="dash-stat-label" data-i18n="dashExpiringSoon">????? ?????</div>
-        </div>
+        <div class="dash-stat-card"><div class="dash-stat-num" id="dash-total">0</div><div class="dash-stat-label" data-i18n="dashTotal">الكل</div></div>
+        <div class="dash-stat-card stage1-card"><div class="dash-stat-num" id="dash-stage1">0</div><div class="dash-stat-label" data-i18n="dashStage1">المرحلة 1</div></div>
+        <div class="dash-stat-card stage2-card"><div class="dash-stat-num" id="dash-stage2">0</div><div class="dash-stat-label" data-i18n="dashStage2">المرحلة 2</div></div>
+        <div class="dash-stat-card done-card"><div class="dash-stat-num" id="dash-done">0</div><div class="dash-stat-label" data-i18n="dashDone">مكتملة</div></div>
+        <div class="dash-stat-card deposits-card"><div class="dash-stat-num" id="dash-deposits">$0</div><div class="dash-stat-label" data-i18n="dashDeposits">الإيداعات</div></div>
+        <div class="dash-stat-card soon-card"><div class="dash-stat-num" id="dash-soon">0</div><div class="dash-stat-label" data-i18n="dashExpiringSoon">تنتهي اليوم</div></div>
       </div>
 
-      <!-- Manager Controls: Add button, Export/Import, Notifications -->
       <div class="manager-controls">
         <button class="add-account-btn" onclick="openAddForm()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span data-i18n="btnAddAccount">إضافة حساب جديد</span>
         </button>
-        
         <div class="search-wrapper">
-          <input type="text" id="mgr-search" class="text-input search-input" oninput="filterAccounts()" placeholder="بحث بالـ UID أو البريد الإلكتروني..." />
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <input type="text" id="mgr-search" class="text-input search-input" oninput="filterAccounts()" placeholder="ابحث بـ UID أو البريد..." />
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
       </div>
 
-      <!-- Collapsible Add/Edit Form -->
+      <div class="manager-action-btns">
+        <button id="notif-toggle-btn" class="action-tool-btn notif-btn" onclick="requestNotifPermission()" data-i18n="btnNotif">🔔 تفعيل الإشعارات</button>
+        <button class="action-tool-btn export-btn" onclick="exportAccounts()" data-i18n="btnExport">📤 تصدير النسخة الاحتياطية</button>
+        <button class="action-tool-btn import-btn" onclick="triggerImport()" data-i18n="btnImport">📥 استعادة النسخة الاحتياطية</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importAccounts(event)" />
+      </div>
+
+      <div class="filter-sort-toolbar">
+        <div class="filter-pills">
+          <button class="filter-pill active" data-filter="all" onclick="filterAccounts('all')" data-i18n="filterAll">الكل</button>
+          <button class="filter-pill" data-filter="stage1" onclick="filterAccounts('stage1')" data-i18n="filterStage1">المرحلة 1</button>
+          <button class="filter-pill" data-filter="stage2" onclick="filterAccounts('stage2')" data-i18n="filterStage2">المرحلة 2</button>
+          <button class="filter-pill" data-filter="done" onclick="filterAccounts('done')" data-i18n="filterDone">مكتمل</button>
+        </div>
+        <select class="sort-select" onchange="changeSortBy(this.value)">
+          <option value="newest" data-i18n="sortNewest">الأحدث أولاً</option>
+          <option value="oldest" data-i18n="sortOldest">الأقدم أولاً</option>
+          <option value="soonest" data-i18n="sortSoonest">الأقرب للانتهاء</option>
+        </select>
+      </div>
+
       <div class="card form-card" id="account-form-card" style="display: none;">
         <div class="card-header">
-          <div class="card-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/>
-            </svg>
-          </div>
+          <div class="card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg></div>
           <div>
             <h2 class="card-title" id="form-card-title" data-i18n="formTitleAdd">حساب جديد</h2>
-            <p class="card-subtitle" data-i18n="formSubtitle">أدخل تفاصيل حساب Bybit لحفظه وتتبعه</p>
+            <p class="card-subtitle" data-i18n="formSubtitle">أدخل تفاصيل حساب Bybit لحفظه ومتابعته</p>
           </div>
         </div>
-        
         <div class="form-grid">
           <input type="hidden" id="edit-account-id" />
-          
-          <div class="form-group">
-            <label class="input-label" data-i18n="fieldUID">Bybit UID</label>
-            <input type="text" id="field-uid" class="text-input" placeholder="مثال: 12345678" autocomplete="off" />
-          </div>
-
-          <div class="form-group">
-            <label class="input-label" data-i18n="fieldEmail">البريد الإلكتروني</label>
-            <input type="email" id="field-email" class="text-input" placeholder="example@gmail.com" autocomplete="off" />
-          </div>
-
-          <div class="form-group">
-            <label class="input-label" data-i18n="fieldIP">عنوان IP</label>
-            <input type="text" id="field-ip" class="text-input" placeholder="192.168.1.1" autocomplete="off" />
-          </div>
-
-          <div class="form-group">
-            <label class="input-label" data-i18n="fieldAmount">كمية الإيداع ($)</label>
-            <input type="text" id="field-amount" class="text-input" placeholder="100" autocomplete="off" />
-          </div>
-
+          <div class="form-group"><label class="input-label" data-i18n="fieldUID">Bybit UID</label><input type="text" id="field-uid" class="text-input" placeholder="مثال: 12345678" autocomplete="off" /></div>
+          <div class="form-group"><label class="input-label" data-i18n="fieldEmail">البريد الإلكتروني</label><input type="email" id="field-email" class="text-input" placeholder="example@gmail.com" autocomplete="off" /></div>
+          <div class="form-group"><label class="input-label" data-i18n="fieldIP">عنوان IP</label><input type="text" id="field-ip" class="text-input" placeholder="192.168.1.1" autocomplete="off" /></div>
+          <div class="form-group"><label class="input-label" data-i18n="fieldAmount">قيمة الإيداع ($)</label><input type="text" id="field-amount" class="text-input" placeholder="100" autocomplete="off" /></div>
           <div class="form-group full-width">
             <label class="input-label" data-i18n="fieldTime">وقت الإيداع</label>
             <div class="datetime-picker-row">
               <input type="date" id="field-date" class="text-input date-input" />
               <input type="time" id="field-time" class="text-input time-input" step="1" />
-              <button class="now-btn" type="button" onclick="setFormTimeToNow()">
-                <span data-i18n="btnNow">الآن</span>
-              </button>
+              <button class="now-btn" type="button" onclick="setFormTimeToNow()"><span data-i18n="btnNow">الآن</span></button>
             </div>
           </div>
-
-          <div class="form-group full-width">
-            <label class="input-label" data-i18n="fieldNotes">ملاحظات (اختياري)</label>
-            <textarea id="field-notes" class="text-input textarea-input" rows="2" placeholder="أضف أي ملاحظات هنا..."></textarea>
-          </div>
+          <div class="form-group full-width"><label class="input-label" data-i18n="fieldNotes">ملاحظات (اختياري)</label><textarea id="field-notes" class="text-input textarea-input" rows="2" placeholder="أضف أي ملاحظات هنا..."></textarea></div>
         </div>
-
         <div class="form-actions">
-          <button class="calc-btn save-btn" onclick="saveAccount()">
-            <span class="calc-btn-text" data-i18n="btnSave">حفظ الحساب</span>
-          </button>
-          <button class="reset-btn cancel-btn" onclick="closeForm()">
-            <span data-i18n="btnCancel">إلغاء</span>
-          </button>
+          <button class="calc-btn save-btn" onclick="saveAccount()"><span class="calc-btn-text" data-i18n="btnSave">حفظ الحساب</span></button>
+          <button class="reset-btn cancel-btn" onclick="closeForm()"><span data-i18n="btnCancel">إلغاء</span></button>
         </div>
       </div>
 
-      <!-- Filter and Sort Toolbar -->
-      <div class="filter-sort-toolbar">
-        <div class="filter-pills">
-          <button class="filter-pill active" data-filter="all" onclick="filterAccounts('all')" data-i18n="filterAll">????</button>
-          <button class="filter-pill" data-filter="stage1" onclick="filterAccounts('stage1')" data-i18n="filterStage1">??????? 1</button>
-          <button class="filter-pill" data-filter="stage2" onclick="filterAccounts('stage2')" data-i18n="filterStage2">??????? 2</button>
-          <button class="filter-pill" data-filter="done" onclick="filterAccounts('done')" data-i18n="filterDone">?????</button>
-        </div>
-        <select class="sort-select" onchange="changeSortBy(this.value)">
-          <option value="newest" data-i18n="sortNewest">?????? ?????</option>
-          <option value="oldest" data-i18n="sortOldest">?????? ?????</option>
-          <option value="soonest" data-i18n="sortSoonest">?????? ????????</option>
-        </select>
-      </div>
-
-      <!-- Accounts List Container -->
-      <div class="accounts-grid" id="accounts-grid">
-        <!-- Dyn. populated -->
-      </div>
-    </div>� المحفوظة</span>
-        </h2>
-        <button class="clear-history-btn" onclick="clearHistory()" id="clear-history-btn" style="display:none;" data-i18n="btnClearHistory">
-          مسح الكل
-        </button>
-      </div>
-      <div class="history-list" id="history-list">
-        <div class="empty-history">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-          </svg>
-          <p data-i18n="historyEmpty">لا توجد حسابات محفوظة بعد</p>
-        </div>
-      </div>
-    </section>
+      <div class="accounts-grid" id="accounts-grid"></div>
+    </div>
 
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
-    <p data-i18n="footerText">وقتك — أداة متابعة حسابات Bybit • جميع البيانات محلية على جهازك</p>
+    <p data-i18n="footerText">وقتك — متابعة حسابات Bybit • كل البيانات محفوظة محلياً على جهازك</p>
   </footer>
 
-  <canvas id="particle-canvas"></canvas>
+  <div class="toast" id="toast"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
-
