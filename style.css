@@ -1581,9 +1581,8 @@ body {
   box-shadow: 0 4px 15px rgba(59,130,246,0.3);
 }
 
-}
-
 /* --- Dashboard Stats --- */
+
 .dashboard-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -2774,3 +2773,176 @@ body {
   margin-right: 6px;
 }
 
+/* ─── Account Card Inner Components (used by app.js renderAccounts) ─────────── */
+.card-uid-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.card-uid {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.badge-stage1 {
+  background: rgba(247,166,0,0.1);
+  border: 1px solid rgba(247,166,0,0.3);
+  color: var(--gold);
+}
+
+.badge-stage1-done {
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: #60A5FA;
+}
+
+.badge-stage2 {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--warning);
+}
+
+.badge-done {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--success);
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.card-edit-btn,
+.card-delete-btn {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--r-sm);
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.card-edit-btn:hover   { background: rgba(247,166,0,0.1); }
+.card-delete-btn:hover { background: rgba(239,68,68,0.1); }
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.card-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.card-field-label {
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-field-val {
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: end;
+  word-break: break-all;
+}
+
+.card-footer {
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.card-time-info {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.card-time-info.stage1  { border-color: rgba(247,166,0,0.25); }
+.card-time-info.stage2  { border-color: rgba(245,158,11,0.25); }
+.card-time-info.done    { border-color: rgba(34,197,94,0.25); }
+.card-time-info.overdue { border-color: rgba(239,68,68,0.25); }
+
+.card-time-label {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.card-time-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.card-time-info.stage1  .card-time-val { color: var(--gold); }
+.card-time-info.stage2  .card-time-val { color: var(--warning); }
+.card-time-info.done    .card-time-val { color: var(--success); }
+.card-time-info.overdue .card-time-val { color: var(--danger); }
+
+.card-stage2-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: #fff;
+  transition: all 0.2s var(--ease);
+}
+
+.card-stage2-btn:hover {
+  box-shadow: 0 4px 15px rgba(59,130,246,0.35);
+  transform: translateY(-1px);
+}
+
+.accounts-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-16) 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}

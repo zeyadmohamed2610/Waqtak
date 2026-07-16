@@ -413,7 +413,52 @@ function switchTab(tab) {
 }
 
 // ─── Date Parsing Utilities ───────────────────────────────────────────────────
+
+// ── Egypt timezone helpers (Intl-based, handles DST correctly) ──
+function getEgyptDateTimeParts(date) {
+  // Returns {datePart: 'YYYY-MM-DD', timePart: 'HH:MM'} in Egypt local time
+  try {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: EGYPT_TZ,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+    const parts = {};
+    fmt.formatToParts(date).forEach(p => { if (p.type !== 'literal') parts[p.type] = p.value; });
+    const hh = parts.hour === '24' ? '00' : parts.hour;
+    return { datePart: `${parts.year}-${parts.month}-${parts.day}`, timePart: `${hh}:${parts.minute}` };
+  } catch {
+    // Fallback: assume UTC+3 offset
+    const local = new Date(date.getTime() + 3 * 3600000);
+    const pad = n => String(n).padStart(2, '0');
+    return {
+      datePart: `${local.getUTCFullYear()}-${pad(local.getUTCMonth()+1)}-${pad(local.getUTCDate())}`,
+      timePart: `${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}`
+    };
+  }
+}
+
+function parseEgyptLocalToUTC(yr, mo, dy, hh, mi) {
+  // Convert Egypt local datetime to UTC using Intl (handles DST)
+  // Strategy: binary-search the actual Egypt offset for this instant
+  const approxMs = Date.UTC(yr, mo - 1, dy, hh, mi);
+  function egOffset(ms) {
+    const d = new Date(ms);
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: EGYPT_TZ, year:'numeric', month:'numeric', day:'numeric',
+      hour:'numeric', minute:'numeric', second:'numeric', hour12: false
+    });
+    const p = {};
+    fmt.formatToParts(d).forEach(x => { if (x.type !== 'literal') p[x.type] = Number(x.value); });
+    const localMs = Date.UTC(p.year, p.month - 1, p.day, p.hour === 24 ? 0 : p.hour, p.minute, p.second);
+    return localMs - ms;
+  }
+  const offset = egOffset(approxMs);
+  return new Date(approxMs - offset);
+}
+
 function parseUTCFormat(str) {
+
   // "2026-05-26 11:36:42 (UTC+0)"
   const m = str.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\s*\(UTC([+-]\d+)\)$/i);
   if (!m) return null;
@@ -446,7 +491,7 @@ function formatEgyptShort(date) {
 }
 
 function formatDuration(ms) {
-  if (ms < 0) ms = 0;
+  if (isNaN(ms) || ms < 0) ms = 0;
   const d = Math.floor(ms / 86400000); ms %= 86400000;
   const h = Math.floor(ms / 3600000);  ms %= 3600000;
   const m = Math.floor(ms / 60000);    ms %= 60000;
@@ -478,10 +523,9 @@ function calculate() {
     const dateVal = document.getElementById('manual-date')?.value;
     const timeVal = document.getElementById('manual-time')?.value || '00:00';
     if (!dateVal) { showToast(t('toastPickDate')); return; }
-    // Manual is treated as Egypt local time
     const [yr, mo, dy] = dateVal.split('-').map(Number);
     const [hh, mi] = timeVal.split(':').map(Number);
-    dep = new Date(Date.UTC(yr, mo-1, dy, hh, mi) - 3*3600000);
+    dep = parseEgyptLocalToUTC(yr, mo, dy, hh, mi);
   }
 
   if (!dep || isNaN(dep.getTime())) { showToast(t('toastBadUTC')); return; }
@@ -726,15 +770,21 @@ function idbLoad() {
       const tx  = idb.transaction(IDB_STORE, 'readonly');
       const req = tx.objectStore(IDB_STORE).getAll();
       req.onsuccess = () => {
-        const items = (req.result || []).map(r => {
-          try { return JSON.parse(r.data); } catch { return null; }
+        const raw = (req.result || []).map(r => {
+          if (!r.data) return null;
+          if (typeof r.data === 'string') {
+            try { return JSON.parse(r.data); } catch { return null; }
+          }
+          return r.data; // Already an object
         }).filter(Boolean);
-        resolve(items);
+        // Apply migration (same as localStorage) to fix any bad data
+        resolve(raw.map(migrateAccount).filter(Boolean));
       };
       req.onerror = () => resolve([]);
     } catch { resolve([]); }
   });
 }
+
 
 // ─── Account Storage ──────────────────────────────────────────────────────────
 function saveAccounts() {
@@ -742,12 +792,40 @@ function saveAccounts() {
   idbSave(accounts);
 }
 
+function migrateAccount(a) {
+  // Ensure every account has a valid depositTime ISO string
+  if (!a || typeof a !== 'object') return null;
+  if (!a.depositTime || isNaN(new Date(a.depositTime).getTime())) {
+    // Try legacy field names that may have been stored
+    const candidates = [a.created, a.date, a.timestamp, a.time];
+    let found = null;
+    for (const c of candidates) {
+      if (c) {
+        const d = new Date(c);
+        if (!isNaN(d.getTime())) { found = d.toISOString(); break; }
+        // Could be numeric ms
+        const ms = Number(c);
+        if (!isNaN(ms) && ms > 1e12) { found = new Date(ms).toISOString(); break; }
+      }
+    }
+    a.depositTime = found || new Date().toISOString();
+  }
+  if (!a.id) a.id = Date.now() + Math.random();
+  if (!a.stage) a.stage = 1;
+  if (a.stage2StartTime && isNaN(new Date(a.stage2StartTime).getTime())) {
+    a.stage2StartTime = null;
+  }
+  return a;
+}
+
 function loadAccountsFromStorage() {
   try {
     const raw = localStorage.getItem(ACCOUNTS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.map(migrateAccount).filter(Boolean) : [];
   } catch { return []; }
 }
+
 
 // ─── IP Conflict Detection ────────────────────────────────────────────────────
 function findIPConflicts() {
@@ -769,6 +847,7 @@ function findIPConflicts() {
 function getAccountStatus(acc) {
   const now = Date.now();
   const dep = new Date(acc.depositTime).getTime();
+  if (isNaN(dep)) return 'stage1'; // Fallback for invalid dates
   const s1End = dep + 4 * 86400000;
   const s2Start = acc.stage2StartTime ? new Date(acc.stage2StartTime).getTime() : s1End;
   const s2End   = s2Start + 4 * 86400000;
@@ -782,6 +861,9 @@ function getAccountStatus(acc) {
 function getTimeInfo(acc) {
   const now = Date.now();
   const dep = new Date(acc.depositTime).getTime();
+  if (isNaN(dep)) {
+    return { label: t('cardTimeRemaining'), time: '—', class: 'stage1' };
+  }
   const s1End = dep + 4 * 86400000;
   const s2Start = acc.stage2StartTime ? new Date(acc.stage2StartTime).getTime() : s1End;
   const s2End   = s2Start + 4 * 86400000;
@@ -965,7 +1047,17 @@ function renderTimeline() {
   const oneDay = 86400000;
   let minTime = now, maxTime = now;
 
-  accounts.forEach(a => {
+  const validAccounts = accounts.filter(a => {
+    const dep = new Date(a.depositTime).getTime();
+    return !isNaN(dep);
+  });
+
+  if (validAccounts.length === 0) {
+    container.innerHTML = `<div class="timeline-empty">${t('timelineNoAccounts')}</div>`;
+    return;
+  }
+
+  validAccounts.forEach(a => {
     const dep = new Date(a.depositTime).getTime();
     const end = a.stage2StartTime
       ? new Date(a.stage2StartTime).getTime() + 4 * oneDay
@@ -983,7 +1075,7 @@ function renderTimeline() {
 
   let html = `<div class="timeline-scale-wrapper"><div class="timeline-today-marker" style="left:${todayPct}%;"><span class="today-label">${t('timelineToday')}</span></div></div>`;
 
-  accounts.slice(0, 20).forEach(a => {
+  validAccounts.slice(0, 20).forEach(a => {
     const depMs    = new Date(a.depositTime).getTime();
     const s1EndMs  = depMs + 4 * oneDay;
     const s2EndMs  = a.stage2StartTime
@@ -1051,11 +1143,14 @@ function openEditForm(id) {
 
   if (acc.depositTime) {
     const d = new Date(acc.depositTime);
-    // Convert to Egypt local time for the form
-    const egStr = d.toLocaleString('en-CA', { timeZone: EGYPT_TZ, hour12: false });
-    const [datePart, timePart] = egStr.split(', ');
-    document.getElementById('field-date').value = datePart;
-    document.getElementById('field-time').value = timePart?.slice(0, 5) || '';
+    if (!isNaN(d.getTime())) {
+      const { datePart, timePart } = getEgyptDateTimeParts(d);
+      document.getElementById('field-date').value = datePart;
+      document.getElementById('field-time').value = timePart;
+    } else {
+      document.getElementById('field-date').value = '';
+      document.getElementById('field-time').value = '';
+    }
   }
 
   const formCard = document.getElementById('account-form-card');
@@ -1072,13 +1167,11 @@ function closeForm() {
 }
 
 function setFormTimeToNow() {
-  const now = new Date();
-  const egStr = now.toLocaleString('en-CA', { timeZone: EGYPT_TZ, hour12: false });
-  const [datePart, timePart] = egStr.split(', ');
+  const { datePart, timePart } = getEgyptDateTimeParts(new Date());
   const dateEl = document.getElementById('field-date');
   const timeEl = document.getElementById('field-time');
   if (dateEl) dateEl.value = datePart;
-  if (timeEl) timeEl.value = timePart?.slice(0, 5) || '';
+  if (timeEl) timeEl.value = timePart;
 }
 
 function saveAccount() {
@@ -1086,10 +1179,10 @@ function saveAccount() {
   const timeVal = document.getElementById('field-time')?.value || '00:00';
   if (!dateVal) { showToast(t('toastFillRequired')); return; }
 
-  // Parse Egypt local time to UTC
+  // Parse Egypt local time to UTC (Intl-based, handles DST correctly)
   const [yr, mo, dy] = dateVal.split('-').map(Number);
   const [hh, mi] = timeVal.split(':').map(Number);
-  const depositUTCMs = new Date(Date.UTC(yr, mo-1, dy, hh, mi) - 3*3600000).getTime();
+  const depDate = parseEgyptLocalToUTC(yr, mo, dy, hh, mi);
 
   const uid    = document.getElementById('field-uid')?.value.trim()    || '';
   const email  = document.getElementById('field-email')?.value.trim()  || '';
@@ -1100,14 +1193,14 @@ function saveAccount() {
   if (editingId) {
     const idx = accounts.findIndex(a => a.id === editingId);
     if (idx > -1) {
-      accounts[idx] = { ...accounts[idx], uid, email, ip, amount, notes, depositTime: new Date(depositUTCMs).toISOString() };
+      accounts[idx] = { ...accounts[idx], uid, email, ip, amount, notes, depositTime: depDate.toISOString() };
     }
     showToast(t('toastUpdated'));
   } else {
     const newAcc = {
       id: Date.now(),
       uid, email, ip, amount, notes,
-      depositTime: new Date(depositUTCMs).toISOString(),
+      depositTime: depDate.toISOString(),
       stage: 1,
       stage2StartTime: null,
       auditLog: [{ action: 'created', time: new Date().toISOString() }]
@@ -1124,6 +1217,7 @@ function saveAccount() {
   renderAccounts();
   renderDashboard();
 }
+
 
 function deleteAccount(id) {
   if (!confirm(t('toastClearAcctConfirm'))) return;
