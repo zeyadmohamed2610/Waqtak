@@ -244,7 +244,8 @@ const el = (tag, cls) => { const e = document.createElement(tag); if (cls) e.cla
 // ─── Live Clock (Egypt Time) ──────────────────────────────────────────────────
 function tickClock() {
   const now = new Date();
-  $('live-clock').textContent = now.toLocaleTimeString('ar-EG', {
+  const locale = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+  $('live-clock').textContent = now.toLocaleTimeString(locale, {
     timeZone: EGYPT_TZ,
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
   });
