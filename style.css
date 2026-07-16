@@ -1581,6 +1581,233 @@ body {
   box-shadow: 0 4px 15px rgba(59,130,246,0.3);
 }
 
+}
+
+/* --- Dashboard Stats --- */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.dash-stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dash-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-glow);
+}
+
+.dash-stat-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.dash-stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Stat color variants */
+.dash-stat-card.stage1-card .dash-stat-num { color: var(--gold); }
+.dash-stat-card.stage2-card .dash-stat-num { color: var(--warning); }
+.dash-stat-card.done-card .dash-stat-num { color: var(--success); }
+.dash-stat-card.deposits-card .dash-stat-num { color: #3B82F6; }
+.dash-stat-card.soon-card .dash-stat-num { color: #EF4444; }
+
+/* --- Action Buttons (Backup, Notifications) --- */
+.manager-action-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.action-tool-btn {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-tool-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.notif-btn.notif-on {
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.notif-btn.notif-denied {
+  color: #EF4444;
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.05);
+  cursor: not-allowed;
+}
+
+/* --- Filter & Sort Toolbar --- */
+.filter-sort-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-pill {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-pill:hover {
+  color: var(--text-primary);
+}
+
+.filter-pill.active {
+  background: rgba(247, 166, 0, 0.1);
+  border-color: var(--gold);
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(247, 166, 0, 0.3);
+}
+
+.sort-select {
+  background: var(--bg-2);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.sort-select:focus {
+  border-color: var(--gold);
+}
+
+/* --- Copy Button --- */
+.copy-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 2px;
+  margin-inline-start: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.copy-icon-btn:hover {
+  color: var(--gold);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* --- Audit Log Section --- */
+.audit-log-section {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-color);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.audit-log-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.audit-entry {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  padding: 3px 0;
+}
+
+.audit-action {
+  font-weight: 500;
+}
+
+.audit-time {
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.7;
+}
+
+.audit-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-inline-end: 8px;
+}
+
+.audit-toggle-btn:hover {
+  background: rgba(247, 166, 0, 0.1);
+}
+
+.card-footer-right {
+  display: flex;
+  align-items: center;
+}
+
 @media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
@@ -1592,7 +1819,18 @@ body {
   .search-wrapper {
     max-width: none;
   }
+  .filter-sort-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-pills {
+    justify-content: space-between;
+  }
+  .sort-select {
+    width: 100%;
+  }
 }
+
 
 /* --- Scrollbar --- */
 ::-webkit-scrollbar { width: 6px; }

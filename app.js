@@ -26,6 +26,13 @@ let currentLang         = 'ar';   // 'ar' or 'en'
 let currentMode         = 'calculator'; // 'calculator' or 'manager'
 let accounts            = [];           // Array of manager accounts
 let accountsInterval    = null;         // Live update ticker for manager mode
+let filterStatus        = 'all';        // 'all' | 'stage1' | 'stage2' | 'done'
+let sortBy              = 'newest';     // 'newest' | 'oldest' | 'soonest'
+let notifPermission     = false;        // Browser notification permission granted
+let idb                 = null;         // IndexedDB instance
+const IDB_NAME          = 'waqtak_db';
+const IDB_STORE         = 'accounts';
+const IDB_VERSION       = 1;
 
 // ─── i18n Translations ───────────────────────────────────────────────────────
 const TRANSLATIONS = {
@@ -149,6 +156,46 @@ const TRANSLATIONS = {
     cardCreated:      'تاريخ البدء: ',
     cardStage2Started:'تحديث المرحلة 2: ',
     searchPlaceholder:'بحث بالـ UID أو البريد الإلكتروني...',
+    // Export / Import
+    btnExport:        'تصدير النسخة الاحتياطية',
+    btnImport:        'استعادة النسخة الاحتياطية',
+    toastExportOk:    '✅ تم تصدير البيانات بنجاح',
+    toastImportOk:    '✅ تم استيراد البيانات بنجاح',
+    toastImportErr:   '❌ خطأ في الملف — تأكد من صحة ملف JSON',
+    toastImportEmpty: '⚠️ الملف لا يحتوي على بيانات صالحة',
+    toastCopied:      '📋 تم النسخ',
+    // Notifications
+    btnNotif:         '🔔 تفعيل الإشعارات',
+    btnNotifOn:       '🔔 الإشعارات مفعلة',
+    btnNotifDenied:   '🔕 الإشعارات محجوبة',
+    notifStage1Title: 'انتهت المرحلة 1 ✓',
+    notifStage1Body:  'الحساب جاهز للمهمات — UID: ',
+    notifStage2Title: 'الحساب مكتمل بالكامل 🎉',
+    notifStage2Body:  'تمت المرحلة 2 بنجاح — UID: ',
+    // Filter / Sort
+    filterAll:        'الكل',
+    filterStage1:     'المرحلة 1',
+    filterStage2:     'المرحلة 2',
+    filterDone:       'مكتمل',
+    sortNewest:       'الأحدث أولاً',
+    sortOldest:       'الأقدم أولاً',
+    sortSoonest:      'الأقرب للانتهاء',
+    // Dashboard Stats
+    dashTotal:        'إجمالي الحسابات',
+    dashStage1:       'في المرحلة 1',
+    dashStage2:       'في المرحلة 2',
+    dashDone:         'مكتملة',
+    dashDeposits:     'إجمالي الإيداعات',
+    dashExpiringSoon: 'تنتهي اليوم',
+    // Audit Log
+    auditLog:         'سجل التغييرات',
+    auditCreated:     '🆕 تم إنشاء الحساب',
+    auditEdited:      '✏️ تم تعديل الحساب',
+    auditStage2:      '⚡ بدأت المرحلة 2',
+    auditHide:        'إخفاء السجل',
+    auditShow:        'عرض السجل',
+    // IDB
+    idbRestored:      '💾 تم استعادة البيانات من النسخة الاحتياطية',
   },
   en: {
     // Header
@@ -270,6 +317,46 @@ const TRANSLATIONS = {
     cardCreated:      'Start Date: ',
     cardStage2Started:'Stage 2 Update: ',
     searchPlaceholder:'Search by UID or Email...',
+    // Export / Import
+    btnExport:        'Export Backup',
+    btnImport:        'Restore Backup',
+    toastExportOk:    '✅ Data exported successfully',
+    toastImportOk:    '✅ Data imported successfully',
+    toastImportErr:   '❌ File error — make sure it is a valid JSON file',
+    toastImportEmpty: '⚠️ File contains no valid data',
+    toastCopied:      '📋 Copied!',
+    // Notifications
+    btnNotif:         '🔔 Enable Notifications',
+    btnNotifOn:       '🔔 Notifications On',
+    btnNotifDenied:   '🔕 Notifications Blocked',
+    notifStage1Title: 'Stage 1 Complete ✓',
+    notifStage1Body:  'Account ready for tasks — UID: ',
+    notifStage2Title: 'Account Fully Complete 🎉',
+    notifStage2Body:  'Stage 2 finished successfully — UID: ',
+    // Filter / Sort
+    filterAll:        'All',
+    filterStage1:     'Stage 1',
+    filterStage2:     'Stage 2',
+    filterDone:       'Completed',
+    sortNewest:       'Newest First',
+    sortOldest:       'Oldest First',
+    sortSoonest:      'Expiring Soon',
+    // Dashboard Stats
+    dashTotal:        'Total Accounts',
+    dashStage1:       'In Stage 1',
+    dashStage2:       'In Stage 2',
+    dashDone:         'Completed',
+    dashDeposits:     'Total Deposits',
+    dashExpiringSoon: 'Expiring Today',
+    // Audit Log
+    auditLog:         'Change Log',
+    auditCreated:     '🆕 Account Created',
+    auditEdited:      '✏️ Account Edited',
+    auditStage2:      '⚡ Stage 2 Started',
+    auditHide:        'Hide Log',
+    auditShow:        'View Log',
+    // IDB
+    idbRestored:      '💾 Data restored from backup storage',
   }
 };
 
@@ -1012,11 +1099,24 @@ currentMode = localStorage.getItem('bybit_tracker_mode') || 'calculator';
 applyI18n();
 renderHistory();
 
-// Load accounts
-accounts = getAccounts();
-
-// Switch to default mode
-switchMode(currentMode);
+// Load accounts (with IndexedDB fallback)
+initIndexedDB().then(async () => {
+  accounts = getAccounts();
+  // If localStorage is empty, try IndexedDB fallback
+  if (!accounts.length) {
+    const idbData = await loadFromIDB();
+    if (idbData && idbData.length) {
+      accounts = idbData;
+      saveAccounts(); // Restore to localStorage
+      showToast(t('idbRestored'));
+    }
+  }
+  // Switch to default mode after data is loaded
+  switchMode(currentMode);
+  renderDashboard();
+  updateNotifBtn();
+  checkPendingNotifications();
+});
 
 // Refresh history timestamps every 30s
 setInterval(renderHistory, 30000);
@@ -1054,6 +1154,47 @@ function switchMode(mode) {
   }
 }
 
+// ─── IndexedDB Dual Storage ──────────────────────────────────────────────────
+function initIndexedDB() {
+  return new Promise((resolve) => {
+    if (!window.indexedDB) { resolve(false); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE, { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = (e) => { idb = e.target.result; resolve(true); };
+    req.onerror = () => { resolve(false); };
+  });
+}
+
+function saveToIDB(data) {
+  if (!idb) return;
+  try {
+    const tx = idb.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put({ key: 'accounts', data: JSON.stringify(data) });
+  } catch(e) { /* silent fail */ }
+}
+
+function loadFromIDB() {
+  return new Promise((resolve) => {
+    if (!idb) { resolve(null); return; }
+    try {
+      const tx = idb.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get('accounts');
+      req.onsuccess = () => {
+        if (req.result) {
+          try { resolve(JSON.parse(req.result.data)); }
+          catch { resolve(null); }
+        } else { resolve(null); }
+      };
+      req.onerror = () => resolve(null);
+    } catch { resolve(null); }
+  });
+}
+
 // ─── Account Manager Operations ──────────────────────────────────────────────
 function getAccounts() {
   try {
@@ -1065,6 +1206,7 @@ function getAccounts() {
 
 function saveAccounts() {
   localStorage.setItem('bybit_tracker_accounts', JSON.stringify(accounts));
+  saveToIDB(accounts);
 }
 
 function openAddForm() {
@@ -1129,6 +1271,8 @@ function saveAccount() {
       accounts[idx].amount = amount;
       accounts[idx].notes = notes;
       accounts[idx].depositTime = depositTime.toISOString();
+      if (!accounts[idx].auditLog) accounts[idx].auditLog = [];
+      accounts[idx].auditLog.push({ action: 'edited', time: new Date().toISOString() });
     }
   } else {
     // Create new
@@ -1141,14 +1285,19 @@ function saveAccount() {
       notes: notes,
       depositTime: depositTime.toISOString(),
       stage: 1,
-      stage2StartTime: null
+      stage2StartTime: null,
+      auditLog: [{ action: 'created', time: new Date().toISOString() }],
+      notif1Sent: false,
+      notif2Sent: false
     };
     accounts.unshift(newAcct);
+    scheduleNotifications(newAcct);
   }
 
   saveAccounts();
   closeForm();
   renderAccounts();
+  renderDashboard();
 }
 
 function editAccount(id) {
@@ -1185,12 +1334,257 @@ function transitionStage2(id) {
 
   acct.stage = 2;
   acct.stage2StartTime = new Date().toISOString();
+  if (!acct.auditLog) acct.auditLog = [];
+  acct.auditLog.push({ action: 'stage2', time: new Date().toISOString() });
+  acct.notif2Sent = false;
   saveAccounts();
+  scheduleNotifications(acct);
+  renderAccounts();
+  renderDashboard();
+}
+
+function filterAccounts(status) {
+  if (status !== undefined) filterStatus = status;
+  // Update filter pill active state
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.filter === filterStatus);
+  });
   renderAccounts();
 }
 
-function filterAccounts() {
+function changeSortBy(val) {
+  sortBy = val;
   renderAccounts();
+}
+
+// ─── Quick Copy ───────────────────────────────────────────────────────────────
+function copyToClipboard(text, label) {
+  if (!text || text === '—') return;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(t('toastCopied') + (label ? ` (${label})` : ''));
+  }).catch(() => {
+    // fallback
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast(t('toastCopied'));
+  });
+}
+
+// ─── Audit Log Toggle ─────────────────────────────────────────────────────────
+function toggleAuditLog(id) {
+  const section = $(`audit-log-${id}`);
+  const btn = $(`audit-btn-${id}`);
+  if (!section) return;
+  const isHidden = section.style.display === 'none' || !section.style.display;
+  section.style.display = isHidden ? 'block' : 'none';
+  if (btn) btn.textContent = isHidden ? t('auditHide') : t('auditShow');
+}
+
+// ─── Browser Notifications ───────────────────────────────────────────────────
+function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    showToast('⚠️ المتصفح لا يدعم الإشعارات');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    notifPermission = perm === 'granted';
+    updateNotifBtn();
+    if (notifPermission) {
+      accounts.forEach(scheduleNotifications);
+    }
+  });
+}
+
+function updateNotifBtn() {
+  const btn = $('notif-toggle-btn');
+  if (!btn) return;
+  if (!('Notification' in window)) { btn.style.display = 'none'; return; }
+  if (Notification.permission === 'denied') {
+    btn.textContent = t('btnNotifDenied');
+    btn.classList.add('notif-denied');
+    btn.classList.remove('notif-on');
+    btn.disabled = true;
+  } else if (Notification.permission === 'granted') {
+    btn.textContent = t('btnNotifOn');
+    btn.classList.add('notif-on');
+    btn.classList.remove('notif-denied');
+    btn.disabled = false;
+    notifPermission = true;
+  } else {
+    btn.textContent = t('btnNotif');
+    btn.classList.remove('notif-on', 'notif-denied');
+    btn.disabled = false;
+  }
+}
+
+function scheduleNotifications(acct) {
+  if (!notifPermission) return;
+  const now = Date.now();
+
+  if (acct.stage === 1 && !acct.notif1Sent) {
+    const deposit = new Date(acct.depositTime).getTime();
+    const target1 = deposit + 4 * 24 * 3600 * 1000;
+    const delay = target1 - now;
+    if (delay > 0) {
+      setTimeout(() => {
+        const a = accounts.find(x => x.id === acct.id);
+        if (a && !a.notif1Sent) {
+          new Notification(t('notifStage1Title'), {
+            body: t('notifStage1Body') + (a.uid || '—'),
+            icon: '/favicon.ico'
+          });
+          a.notif1Sent = true;
+          saveAccounts();
+        }
+      }, delay);
+    }
+  }
+
+  if (acct.stage === 2 && !acct.notif2Sent) {
+    const s2Start = new Date(acct.stage2StartTime).getTime();
+    const target2 = s2Start + 4 * 24 * 3600 * 1000;
+    const delay = target2 - now;
+    if (delay > 0) {
+      setTimeout(() => {
+        const a = accounts.find(x => x.id === acct.id);
+        if (a && !a.notif2Sent) {
+          new Notification(t('notifStage2Title'), {
+            body: t('notifStage2Body') + (a.uid || '—'),
+            icon: '/favicon.ico'
+          });
+          a.notif2Sent = true;
+          saveAccounts();
+        }
+      }, delay);
+    }
+  }
+}
+
+function checkPendingNotifications() {
+  if (Notification.permission !== 'granted') return;
+  notifPermission = true;
+  const now = Date.now();
+  accounts.forEach(acct => {
+    // Fire any missed notifications
+    if (acct.stage === 1) {
+      const target1 = new Date(acct.depositTime).getTime() + 4 * 24 * 3600 * 1000;
+      if (now >= target1 && !acct.notif1Sent) {
+        new Notification(t('notifStage1Title'), {
+          body: t('notifStage1Body') + (acct.uid || '—'),
+          icon: '/favicon.ico'
+        });
+        acct.notif1Sent = true;
+      }
+    } else if (acct.stage === 2) {
+      const target2 = new Date(acct.stage2StartTime).getTime() + 4 * 24 * 3600 * 1000;
+      if (now >= target2 && !acct.notif2Sent) {
+        new Notification(t('notifStage2Title'), {
+          body: t('notifStage2Body') + (acct.uid || '—'),
+          icon: '/favicon.ico'
+        });
+        acct.notif2Sent = true;
+      }
+    }
+    // Schedule future notifications
+    scheduleNotifications(acct);
+  });
+  saveAccounts();
+}
+
+// ─── Export / Import ─────────────────────────────────────────────────────────
+function exportAccounts() {
+  if (!accounts.length) { showToast('⚠️ لا توجد بيانات للتصدير'); return; }
+  const data = JSON.stringify(accounts, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const now  = new Date();
+  const pad  = n => String(n).padStart(2, '0');
+  const fname = `waqtak_backup_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
+  a.href = url;
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(t('toastExportOk'));
+}
+
+function triggerImport() {
+  $('import-file-input').click();
+}
+
+function importAccounts(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data) || data.length === 0) {
+        showToast(t('toastImportEmpty')); return;
+      }
+      // Validate basic structure
+      const valid = data.filter(a => a.id && a.depositTime);
+      if (!valid.length) { showToast(t('toastImportEmpty')); return; }
+      accounts = valid;
+      saveAccounts();
+      renderAccounts();
+      renderDashboard();
+      checkPendingNotifications();
+      showToast(t('toastImportOk'));
+    } catch {
+      showToast(t('toastImportErr'));
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─── Dashboard Stats ─────────────────────────────────────────────────────────
+function renderDashboard() {
+  const totalEl    = $('dash-total');
+  const stage1El   = $('dash-stage1');
+  const stage2El   = $('dash-stage2');
+  const doneEl     = $('dash-done');
+  const depositsEl = $('dash-deposits');
+  const soonEl     = $('dash-soon');
+  if (!totalEl) return;
+
+  const now = Date.now();
+  const oneDayMs = 24 * 3600 * 1000;
+
+  let stage1Count = 0, stage2Count = 0, doneCount = 0, totalDeposit = 0, soonCount = 0;
+
+  accounts.forEach(a => {
+    const amt = parseFloat(a.amount) || 0;
+    totalDeposit += amt;
+
+    if (a.stage === 1) {
+      const target1 = new Date(a.depositTime).getTime() + 4 * oneDayMs;
+      if (now >= target1) doneCount++;
+      else {
+        stage1Count++;
+        if ((target1 - now) <= oneDayMs) soonCount++;
+      }
+    } else if (a.stage === 2) {
+      const target2 = new Date(a.stage2StartTime).getTime() + 4 * oneDayMs;
+      if (now >= target2) doneCount++;
+      else {
+        stage2Count++;
+        if ((target2 - now) <= oneDayMs) soonCount++;
+      }
+    }
+  });
+
+  totalEl.textContent    = accounts.length;
+  stage1El.textContent   = stage1Count;
+  stage2El.textContent   = stage2Count;
+  doneEl.textContent     = doneCount;
+  depositsEl.textContent = '$' + totalDeposit.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  soonEl.textContent     = soonCount;
 }
 
 function renderAccounts() {
@@ -1198,12 +1592,54 @@ function renderAccounts() {
   if (!grid) return;
 
   const query = ($('mgr-search')?.value || '').trim().toLowerCase();
+  const now = Date.now();
+  const oneDayMs = 24 * 3600 * 1000;
 
   // Filter accounts
-  const filtered = accounts.filter(acct => {
-    if (!query) return true;
-    return (acct.uid && acct.uid.toLowerCase().includes(query)) ||
-           (acct.email && acct.email.toLowerCase().includes(query));
+  let filtered = accounts.filter(acct => {
+    // Text search
+    if (query) {
+      const matchSearch = (acct.uid && acct.uid.toLowerCase().includes(query)) ||
+                          (acct.email && acct.email.toLowerCase().includes(query));
+      if (!matchSearch) return false;
+    }
+    // Status filter
+    if (filterStatus === 'all') return true;
+    if (filterStatus === 'stage1') {
+      if (acct.stage !== 1) return false;
+      const t1 = new Date(acct.depositTime).getTime() + 4 * oneDayMs;
+      return now < t1;
+    }
+    if (filterStatus === 'stage2') {
+      if (acct.stage !== 2) return false;
+      const t2 = new Date(acct.stage2StartTime).getTime() + 4 * oneDayMs;
+      return now < t2;
+    }
+    if (filterStatus === 'done') {
+      if (acct.stage === 1) {
+        return now >= new Date(acct.depositTime).getTime() + 4 * oneDayMs;
+      }
+      if (acct.stage === 2) {
+        return now >= new Date(acct.stage2StartTime).getTime() + 4 * oneDayMs;
+      }
+      return false;
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sortBy === 'oldest') return new Date(a.depositTime) - new Date(b.depositTime);
+    if (sortBy === 'soonest') {
+      const getRemaining = acct => {
+        if (acct.stage === 1) return new Date(acct.depositTime).getTime() + 4 * oneDayMs - now;
+        if (acct.stage === 2) return new Date(acct.stage2StartTime).getTime() + 4 * oneDayMs - now;
+        return Infinity;
+      };
+      return getRemaining(a) - getRemaining(b);
+    }
+    // newest (default)
+    return new Date(b.depositTime) - new Date(a.depositTime);
   });
 
   if (filtered.length === 0) {
@@ -1212,7 +1648,7 @@ function renderAccounts() {
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
         </svg>
-        <p>${currentLang === 'ar' ? 'لا توجد حسابات مطابقة للبحث' : 'No matching accounts found'}</p>
+        <p>${currentLang === 'ar' ? 'لا توجد حسابات مطابقة' : 'No matching accounts found'}</p>
       </div>`;
     return;
   }
@@ -1226,11 +1662,20 @@ function renderAccounts() {
     const deposit = new Date(acct.depositTime);
     const hasStage2 = acct.stage === 2;
     const stage2Start = hasStage2 ? new Date(acct.stage2StartTime) : null;
+    const auditEntries = (acct.auditLog || []).map(entry => {
+      const label = entry.action === 'created' ? t('auditCreated') :
+                    entry.action === 'edited'  ? t('auditEdited') :
+                    entry.action === 'stage2'  ? t('auditStage2') : entry.action;
+      return `<div class="audit-entry"><span class="audit-action">${label}</span><span class="audit-time">${formatEgyptShort(new Date(entry.time))}</span></div>`;
+    }).join('');
 
     card.innerHTML = `
       <div class="account-card-header">
         <div class="account-title-group">
           <span class="account-uid-title"># ${acct.uid || '—'}</span>
+          <button class="copy-icon-btn" onclick="copyToClipboard('${acct.uid}', 'UID')" title="Copy UID">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
           <span class="account-status-badge">...</span>
         </div>
         <div class="account-actions">
@@ -1251,10 +1696,16 @@ function renderAccounts() {
         <div class="account-info-row">
           <span class="info-label-inline">${t('cardEmail')}</span>
           <span class="info-value-inline">${acct.email || '—'}</span>
+          <button class="copy-icon-btn" onclick="copyToClipboard('${acct.email}', 'Email')" title="Copy Email">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
         </div>
         <div class="account-info-row">
           <span class="info-label-inline">${t('cardIP')}</span>
           <span class="info-value-inline">${acct.ip || '—'}</span>
+          <button class="copy-icon-btn" onclick="copyToClipboard('${acct.ip}', 'IP')" title="Copy IP">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
         </div>
         <div class="account-info-row">
           <span class="info-label-inline">${t('cardAmount')}</span>
@@ -1272,6 +1723,13 @@ function renderAccounts() {
             <div class="notes-text">${acct.notes}</div>
           </div>
         ` : ''}
+
+        ${auditEntries ? `
+          <div class="audit-log-section" id="audit-log-${acct.id}" style="display:none;">
+            <div class="audit-log-title">${t('auditLog')}</div>
+            ${auditEntries}
+          </div>
+        ` : ''}
       </div>
       
       <div class="account-card-footer">
@@ -1279,7 +1737,10 @@ function renderAccounts() {
           <div>${t('cardCreated')} ${formatEgyptShort(deposit)}</div>
           ${hasStage2 ? `<div>${t('cardStage2Started')} ${formatEgyptShort(stage2Start)}</div>` : ''}
         </div>
-        <div class="card-actions-row"></div>
+        <div class="card-footer-right">
+          ${auditEntries ? `<button id="audit-btn-${acct.id}" class="audit-toggle-btn" onclick="toggleAuditLog(${acct.id})">${t('auditShow')}</button>` : ''}
+          <div class="card-actions-row"></div>
+        </div>
       </div>
     `;
 

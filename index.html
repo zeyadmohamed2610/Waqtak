@@ -357,7 +357,36 @@
 
     <!-- MODE 2: Account Manager Container -->
     <div id="mode-manager-container" style="display: none;">
-      <!-- Manager Controls: Add button and Search/Filter -->
+
+      <!-- Dashboard Stats Bar -->
+      <div class="dashboard-stats">
+        <div class="dash-stat-card">
+          <div class="dash-stat-num" id="dash-total">0</div>
+          <div class="dash-stat-label" data-i18n="dashTotal">????</div>
+        </div>
+        <div class="dash-stat-card stage1-card">
+          <div class="dash-stat-num" id="dash-stage1">0</div>
+          <div class="dash-stat-label" data-i18n="dashStage1">??????? 1</div>
+        </div>
+        <div class="dash-stat-card stage2-card">
+          <div class="dash-stat-num" id="dash-stage2">0</div>
+          <div class="dash-stat-label" data-i18n="dashStage2">??????? 2</div>
+        </div>
+        <div class="dash-stat-card done-card">
+          <div class="dash-stat-num" id="dash-done">0</div>
+          <div class="dash-stat-label" data-i18n="dashDone">??????</div>
+        </div>
+        <div class="dash-stat-card deposits-card">
+          <div class="dash-stat-num" id="dash-deposits">$0</div>
+          <div class="dash-stat-label" data-i18n="dashDeposits">?????????</div>
+        </div>
+        <div class="dash-stat-card soon-card">
+          <div class="dash-stat-num" id="dash-soon">0</div>
+          <div class="dash-stat-label" data-i18n="dashExpiringSoon">????? ?????</div>
+        </div>
+      </div>
+
+      <!-- Manager Controls: Add button, Export/Import, Notifications -->
       <div class="manager-controls">
         <button class="add-account-btn" onclick="openAddForm()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -436,6 +465,21 @@
             <span data-i18n="btnCancel">إلغاء</span>
           </button>
         </div>
+      </div>
+
+      <!-- Filter and Sort Toolbar -->
+      <div class="filter-sort-toolbar">
+        <div class="filter-pills">
+          <button class="filter-pill active" data-filter="all" onclick="filterAccounts('all')" data-i18n="filterAll">????</button>
+          <button class="filter-pill" data-filter="stage1" onclick="filterAccounts('stage1')" data-i18n="filterStage1">??????? 1</button>
+          <button class="filter-pill" data-filter="stage2" onclick="filterAccounts('stage2')" data-i18n="filterStage2">??????? 2</button>
+          <button class="filter-pill" data-filter="done" onclick="filterAccounts('done')" data-i18n="filterDone">?????</button>
+        </div>
+        <select class="sort-select" onchange="changeSortBy(this.value)">
+          <option value="newest" data-i18n="sortNewest">?????? ?????</option>
+          <option value="oldest" data-i18n="sortOldest">?????? ?????</option>
+          <option value="soonest" data-i18n="sortSoonest">?????? ????????</option>
+        </select>
       </div>
 
       <!-- Accounts List Container -->
