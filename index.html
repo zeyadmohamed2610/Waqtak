@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>وقتك | Waqtak</title>
+  <meta name="description" content="أداة احترافية لتتبع حسابات Bybit وحساب مواعيد المراجعة بعد 4 أيام والجاهزية بعد 8 أيام بالتوقيت المصري" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2L25 8v12L14 26 3 20V8L14 2z" stroke="#F7A600" stroke-width="1.5" fill="none"/>
+            <path d="M14 6l8 4.5v9L14 24l-8-4.5v-9L14 6z" fill="#F7A600" fill-opacity="0.15"/>
+            <circle cx="14" cy="14" r="3" fill="#F7A600"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main" data-i18n="logoMain">وقتك</span>
+          <span class="logo-sub" data-i18n="logoSub">متابعة حسابات Bybit</span>
+        </div>
+      </div>
+      <div class="header-info-wrapper">
+        <div class="header-info">
+          <div class="clock-live" id="live-clock">--:--:--</div>
+          <div class="clock-label" data-i18n="clockLabel">التوقيت المصري الآن</div>
+        </div>
+        <button id="lang-toggle-btn" class="lang-toggle-btn" onclick="toggleLanguage()">
+          <span data-i18n="langToggleText">English</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span data-i18n="heroBadge">متابعة الإيداعات والنشاط</span>
+      </div>
+      <h1 class="hero-title" data-i18n="heroTitle">
+        تتبع مواعيد<br/>حساباتك خطوة بخطوة
+      </h1>
+      <p class="hero-desc" data-i18n="heroDesc">
+        أدخل تاريخ الإيداع من رسالة Gmail وستحسب الأداة تلقائياً مواعيد المراجعة بعد <strong>4 أيام</strong> والجاهزية بعد <strong>8 أيام</strong>
+      </p>
+    </section>
+
+    <!-- Input Card -->
+    <section class="input-section" id="input-section">
+      <div class="card input-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title" data-i18n="inputCardTitle">إدخال تاريخ الإيداع</h2>
+            <p class="card-subtitle" data-i18n="inputCardSubtitle">الصق التاريخ من رسالة Gmail أو أدخله يدوياً</p>
+          </div>
+        </div>
+
+        <!-- Format Tabs -->
+        <div class="format-tabs" role="tablist">
+          <button class="tab-btn active" id="tab-utc" role="tab" aria-selected="true" onclick="switchTab('utc')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span data-i18n="tabUTC">UTC Format</span>
+          </button>
+          <button class="tab-btn" id="tab-gmail" role="tab" aria-selected="false" onclick="switchTab('gmail')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span data-i18n="tabGmail">Gmail Format</span>
+          </button>
+          <button class="tab-btn" id="tab-manual" role="tab" aria-selected="false" onclick="switchTab('manual')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span data-i18n="tabManual">يدوي</span>
+          </button>
+        </div>
+
+        <!-- UTC Input -->
+        <div class="tab-content active" id="content-utc">
+          <label class="input-label" data-i18n="labelUTC">
+            تنسيق UTC — مثال: <code>2026-05-26 11:36:42 (UTC+0)</code>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="utc-input"
+              class="text-input"
+              placeholder="2026-05-26 11:36:42 (UTC+0)"
+              autocomplete="off"
+              spellcheck="false"
+              dir="ltr"
+            />
+            <button class="paste-btn" onclick="pasteFromClipboard('utc-input')" title="لصق من الحافظة">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Gmail Input -->
+        <div class="tab-content" id="content-gmail">
+          <label class="input-label" data-i18n="labelGmail">
+            تنسيق Gmail — مثال: <code>May 26, 2026, 2:36 PM</code>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="gmail-input"
+              class="text-input"
+              placeholder="May 26, 2026, 2:36 PM"
+              autocomplete="off"
+              spellcheck="false"
+              dir="ltr"
+            />
+            <button class="paste-btn" onclick="pasteFromClipboard('gmail-input')" title="لصق من الحافظة">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1"/>
+              </svg>
+            </button>
+          </div>
+          <p class="input-note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span data-i18n="gmailNote">Gmail يعرض التوقيت المحلي لإعدادات حسابك — يُعالج تلقائياً حسب UTC</span>
+          </p>
+        </div>
+
+        <!-- Manual Input -->
+        <div class="tab-content" id="content-manual">
+          <label class="input-label" data-i18n="labelManual">اختر تاريخ ووقت الإيداع (بالتوقيت المصري)</label>
+          <div class="manual-inputs">
+            <input type="date" id="manual-date" class="text-input date-input" dir="ltr" />
+            <input type="time" id="manual-time" class="text-input time-input" dir="ltr" step="1" />
+          </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <button class="calc-btn" id="calc-btn" onclick="calculate()">
+          <span class="calc-btn-text" data-i18n="btnCalculate">احسب الآن</span>
+          <svg class="calc-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+
+        <!-- Quick Examples -->
+        <div class="quick-examples">
+          <span class="examples-label" data-i18n="exampleLabel">أمثلة سريعة:</span>
+          <button class="example-chip" onclick="fillExample('utc', '2026-05-26 11:36:42 (UTC+0)')" data-i18n="exampleUTC">مثال UTC</button>
+          <button class="example-chip" onclick="fillExample('gmail', 'May 26, 2026, 2:36 PM')" data-i18n="exampleGmail">مثال Gmail</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results-section" style="display:none;">
+
+      <!-- Status Banner -->
+      <div class="status-banner" id="status-banner">
+        <div class="status-icon" id="status-icon"></div>
+        <div class="status-text">
+          <div class="status-title" id="status-title"></div>
+          <div class="status-subtitle" id="status-subtitle"></div>
+        </div>
+        <div class="status-badge" id="status-badge"></div>
+      </div>
+
+      <!-- Progress Ring -->
+      <div class="progress-wrapper">
+        <div class="progress-card">
+          <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F7A600"/>
+                <stop offset="100%" stop-color="#FF6B35"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="100" cy="100" r="85" />
+            <circle class="ring-fill" id="ring-fill" cx="100" cy="100" r="85"
+              stroke="url(#ring-grad)"
+              stroke-dasharray="534"
+              stroke-dashoffset="534"
+              transform="rotate(-90 100 100)"
+            />
+          </svg>
+          <div class="progress-center">
+            <div class="progress-percent" id="progress-percent">0%</div>
+            <div class="progress-label" data-i18n="progressLabel">مكتمل</div>
+          </div>
+        </div>
+        <div class="progress-info">
+          <!-- Step 1: Deposit -->
+          <div class="info-item">
+            <div class="info-icon deposit-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="info-label" data-i18n="depositLabel">تاريخ الإيداع (بالتوقيت المصري)</div>
+              <div class="info-value" id="deposit-display">—</div>
+            </div>
+          </div>
+          <div class="timeline-line" id="line-1"></div>
+          <!-- Step 2: Milestone 1 -->
+          <div class="info-item" id="item-milestone-1">
+            <div class="info-icon target-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="info-label" data-i18n="milestone1Label">المراجعة الأولى — بعد 4 أيام (بالتوقيت المصري)</div>
+              <div class="info-value" id="target1-display">—</div>
+            </div>
+          </div>
+          <div class="timeline-line" id="line-2"></div>
+          <!-- Step 3: Milestone 2 -->
+          <div class="info-item" id="item-milestone-2">
+            <div class="info-icon completion-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="info-label" data-i18n="milestone2Label">المراجعة الثانية والجاهزية — بعد 8 أيام (بالتوقيت المصري)</div>
+              <div class="info-value" id="target2-display">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card elapsed">
+          <div class="stat-label" data-i18n="statElapsedLabel">مر على الإيداع</div>
+          <div class="stat-value" id="elapsed-display">—</div>
+        </div>
+        <div class="stat-card remaining">
+          <div class="stat-label" data-i18n="statActiveLabel">الهدف النشط حالياً</div>
+          <div class="stat-value" id="remaining-display">—</div>
+        </div>
+        <div class="stat-card days-elapsed">
+          <div class="stat-label" data-i18n="statStage1Label">المرحلة الأولى (4 أيام)</div>
+          <div class="stat-value" id="days-elapsed">—</div>
+        </div>
+        <div class="stat-card days-remaining">
+          <div class="stat-label" data-i18n="statStage2Label">المرحلة الثانية (8 أيام)</div>
+          <div class="stat-value" id="days-remaining">—</div>
+        </div>
+      </div>
+
+      <!-- Detailed Countdown -->
+      <div class="countdown-section">
+        <div class="countdown-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span data-i18n="countdownTitle">العد التنازلي الدقيق</span>
+        </div>
+        <div class="countdown-grid">
+          <div class="countdown-item">
+            <div class="countdown-num" id="cd-days">00</div>
+            <div class="countdown-label" data-i18n="cdDays">أيام</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <div class="countdown-num" id="cd-hours">00</div>
+            <div class="countdown-label" data-i18n="cdHours">ساعات</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <div class="countdown-num" id="cd-mins">00</div>
+            <div class="countdown-label" data-i18n="cdMins">دقائق</div>
+          </div>
+          <div class="countdown-sep">:</div>
+          <div class="countdown-item">
+            <div class="countdown-num" id="cd-secs">00</div>
+            <div class="countdown-label" data-i18n="cdSecs">ثواني</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset Button -->
+      <button class="reset-btn" onclick="resetAll()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3"/>
+        </svg>
+        <span data-i18n="btnReset">إدخال تاريخ جديد</span>
+      </button>
+    </section>
+
+    <!-- History Section -->
+    <section class="history-section" id="history-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span data-i18n="historySectionTitle">الحسابات المحفوظة</span>
+        </h2>
+        <button class="clear-history-btn" onclick="clearHistory()" id="clear-history-btn" style="display:none;" data-i18n="btnClearHistory">
+          مسح الكل
+        </button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="empty-history">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <p data-i18n="historyEmpty">لا توجد حسابات محفوظة بعد</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p data-i18n="footerText">وقتك — أداة متابعة حسابات Bybit • جميع البيانات محلية على جهازك</p>
+  </footer>
+
+  <canvas id="particle-canvas"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
+
